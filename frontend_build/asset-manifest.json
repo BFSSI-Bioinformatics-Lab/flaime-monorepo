@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e125ebbc.css",
+    "main.js": "/static/js/main.fc306860.js",
+    "static/js/453.ead84140.chunk.js": "/static/js/453.ead84140.chunk.js",
+    "static/media/singin.jpg": "/static/media/singin.7b28a5e69c0ec764ed8f.jpg",
+    "static/media/landing.jpg": "/static/media/landing.5ce30a80a7ebc7436ec8.jpg",
+    "static/media/costco.png": "/static/media/costco.129ed23504e3460f694c.png",
+    "static/media/voila.png": "/static/media/voila.bf7f4a03a16207e600dc.png",
+    "static/media/metro.png": "/static/media/metro.644b44ee21564aad8e4a.png",
+    "static/media/loblaws.png": "/static/media/loblaws.9ac4775d31bf879632d9.png",
+    "static/media/nofrills.png": "/static/media/nofrills.5f338a171e99d2f26931.png",
+    "static/media/longos.png": "/static/media/longos.477b03f7870c824e1695.png",
+    "index.html": "/index.html",
+    "main.e125ebbc.css.map": "/static/css/main.e125ebbc.css.map",
+    "main.fc306860.js.map": "/static/js/main.fc306860.js.map",
+    "453.ead84140.chunk.js.map": "/static/js/453.ead84140.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e125ebbc.css",
+    "static/js/main.fc306860.js"
+  ]
+}

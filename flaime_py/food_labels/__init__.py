@@ -1,0 +1,1 @@
+default_app_config = 'flaime_py.food_labels.apps.FoodLabelsConfig'

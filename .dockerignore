@@ -1,0 +1,16 @@
+.git
+.github
+.claude
+.pytest_cache
+.ruff_cache
+**/__pycache__
+
+# Local secrets / env files never go into the image; only .env.fsdh is baked in.
+.env*
+!.env.fsdh
+
+# Rebuilt inside the image (frontend stage) - stale local copies must not leak in.
+frontend/node_modules
+frontend/build
+frontend_build
+staticfiles

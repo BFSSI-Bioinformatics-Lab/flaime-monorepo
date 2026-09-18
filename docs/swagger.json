@@ -1,0 +1,1280 @@
+openapi: 3.0.3
+info:
+  title: flaime-py API
+  version: 1.0.0
+  description: Documentation of API endpoints of flaime-py
+paths:
+  /api/categories/:
+    get:
+      operationId: categories_list
+      description: Get hierarchical category tree with optional scheme filtering
+      parameters:
+      - in: query
+        name: scheme
+        schema:
+          type: integer
+        description: Filter categories by scheme ID
+      tags:
+      - categories
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BaseCategory'
+          description: ''
+  /api/category-predictions/:
+    get:
+      operationId: category_predictions_list
+      description: Get random sample of products needing category verification
+      parameters:
+      - in: query
+        name: scheme
+        schema:
+          type: integer
+        description: Scheme ID to filter predictions
+        required: true
+      - in: query
+        name: source
+        schema:
+          type: integer
+        description: Source ID to filter store products
+        required: true
+      tags:
+      - category-predictions
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductPrediction'
+          description: ''
+  /api/category-verifications/:
+    post:
+      operationId: category_verifications_create
+      description: Create a new category verification
+      tags:
+      - category-verifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualCategoryCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ManualCategoryCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ManualCategoryCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManualCategoryCreate'
+          description: ''
+  /api/nutrients/:
+    get:
+      operationId: nutrients_list
+      tags:
+      - nutrients
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleNutrient'
+          description: ''
+  /api/nutrients/{id}/:
+    get:
+      operationId: nutrients_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Nutrient.
+        required: true
+      tags:
+      - nutrients
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedNutrient'
+          description: ''
+  /api/nutrients/full/:
+    get:
+      operationId: nutrients_full_retrieve
+      tags:
+      - nutrients
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedNutrient'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/sources/:
+    get:
+      operationId: sources_list
+      tags:
+      - sources
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleSource'
+          description: ''
+  /api/sources/{id}/:
+    get:
+      operationId: sources_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Source.
+        required: true
+      tags:
+      - sources
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedSource'
+          description: ''
+  /api/sources/full/:
+    get:
+      operationId: sources_full_retrieve
+      tags:
+      - sources
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedSource'
+          description: ''
+  /api/storeproducts/:
+    get:
+      operationId: storeproducts_list
+      description: List store products with basic information
+      tags:
+      - storeproducts
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleStoreProduct'
+          description: ''
+  /api/storeproducts/{id}/:
+    get:
+      operationId: storeproducts_retrieve
+      description: Get detailed information for a single store product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Store Product.
+        required: true
+      tags:
+      - storeproducts
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedStoreProduct'
+          description: ''
+  /api/storeproducts/full/:
+    get:
+      operationId: storeproducts_full_list
+      description: Get full details for all store products
+      tags:
+      - storeproducts
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailedStoreProduct'
+          description: ''
+  /api/stores/:
+    get:
+      operationId: stores_list
+      tags:
+      - stores
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleStore'
+          description: ''
+  /api/stores/{id}/:
+    get:
+      operationId: stores_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Store.
+        required: true
+      tags:
+      - stores
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedStore'
+          description: ''
+  /api/stores/full/:
+    get:
+      operationId: stores_full_retrieve
+      tags:
+      - stores
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedStore'
+          description: ''
+  /api/token/:
+    post:
+      operationId: token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/token/refresh/:
+    post:
+      operationId: token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/users/:
+    get:
+      operationId: users_list
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: users_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: users_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/me/:
+    get:
+      operationId: users_me_retrieve
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+components:
+  schemas:
+    BaseCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 512
+        code:
+          type: string
+          maxLength: 256
+        scheme:
+          type: string
+          readOnly: true
+        level:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        verification_info:
+          type: object
+          nullable: true
+          properties:
+            verified_by:
+              type: string
+              format: email
+            date_added:
+              type: string
+              format: date-time
+            problematic:
+              type: boolean
+          readOnly: true
+        prediction_info:
+          type: object
+          nullable: true
+          properties:
+            model:
+              type: string
+            confidence:
+              type: number
+              format: float
+            date_predicted:
+              type: string
+              format: date-time
+          readOnly: true
+      required:
+      - code
+      - id
+      - name
+      - prediction_info
+      - scheme
+      - verification_info
+    DetailedNutrient:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        created_datetime:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        modified_datetime:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        deleted_datetime:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        deleted:
+          type: boolean
+        nutrient_code:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        name:
+          type: string
+          maxLength: 256
+        symbol:
+          type: string
+          maxLength: 256
+        usda_nutrient_code:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        parent:
+          type: integer
+          nullable: true
+      required:
+      - created_datetime
+      - id
+      - modified_datetime
+      - name
+      - nutrient_code
+      - symbol
+    DetailedSource:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        created_datetime:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        modified_datetime:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        deleted_datetime:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        deleted:
+          type: boolean
+          default: false
+        name:
+          type: string
+          maxLength: 512
+      required:
+      - created_datetime
+      - id
+      - modified_datetime
+      - name
+    DetailedStore:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        created_datetime:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        modified_datetime:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        deleted_datetime:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_by:
+          type: string
+          nullable: true
+          maxLength: 256
+        deleted:
+          type: boolean
+          default: false
+        name:
+          type: string
+          maxLength: 512
+      required:
+      - created_datetime
+      - id
+      - modified_datetime
+      - name
+    DetailedStoreProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        store_product_code:
+          type: string
+          maxLength: 512
+        sku:
+          type: string
+          nullable: true
+          maxLength: 512
+        reading_price:
+          type: string
+          nullable: true
+          maxLength: 512
+        price:
+          type: number
+          format: double
+          nullable: true
+        raw_brand:
+          type: string
+          nullable: true
+          maxLength: 256
+        site_url:
+          type: string
+          nullable: true
+        site_name:
+          type: string
+          nullable: true
+          maxLength: 512
+        site_description:
+          type: string
+          nullable: true
+          maxLength: 10240
+        nutrition_available_flag:
+          type: boolean
+        nutrition_facts_json:
+          nullable: true
+        total_size:
+          type: string
+          nullable: true
+          maxLength: 500
+        raw_serving_size:
+          type: string
+          nullable: true
+          maxLength: 500
+        raw_upc:
+          type: string
+          nullable: true
+          maxLength: 512
+        nielsen_upc:
+          type: string
+          nullable: true
+          maxLength: 124
+        private_label:
+          type: string
+          nullable: true
+          maxLength: 4096
+        tags:
+          type: string
+          nullable: true
+          maxLength: 2048
+        store:
+          type: string
+          readOnly: true
+        product:
+          $ref: '#/components/schemas/Product'
+        price_unit:
+          type: string
+          readOnly: true
+        bread_crumb:
+          type: string
+          readOnly: true
+        storage:
+          type: string
+          readOnly: true
+        serving_size:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        serving_size_unit:
+          type: string
+          readOnly: true
+        ingredient_en:
+          type: string
+          nullable: true
+        ingredient_fr:
+          type: string
+          nullable: true
+        source:
+          type: string
+          readOnly: true
+        company:
+          $ref: '#/components/schemas/SimpleCompany'
+        created_datetime:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_datetime:
+          type: string
+          format: date-time
+          readOnly: true
+        nutrition_facts:
+          type: array
+          items:
+            $ref: '#/components/schemas/StoreProductNutritionFact'
+          readOnly: true
+      required:
+      - bread_crumb
+      - company
+      - created_datetime
+      - id
+      - modified_datetime
+      - nutrition_available_flag
+      - nutrition_facts
+      - price_unit
+      - product
+      - serving_size_unit
+      - source
+      - storage
+      - store
+      - store_product_code
+    ManualCategoryCreate:
+      type: object
+      properties:
+        product:
+          type: integer
+        category:
+          type: integer
+        problematic_flag:
+          type: boolean
+      required:
+      - category
+      - product
+    PatchedUser:
+      type: object
+      properties:
+        name:
+          type: string
+          title: Name of User
+          maxLength: 255
+        url:
+          type: string
+          format: uri
+          readOnly: true
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name_of_product:
+          type: string
+          nullable: true
+          maxLength: 512
+        description_of_product:
+          type: string
+          nullable: true
+          maxLength: 10240
+        brand:
+          type: string
+          readOnly: true
+        total_size:
+          type: string
+          nullable: true
+          maxLength: 512
+        total_size_value:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        total_size_unit:
+          type: string
+          readOnly: true
+        serving_size:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        serving_size_unit:
+          type: string
+          readOnly: true
+        ingredient_en:
+          type: string
+          nullable: true
+        ingredient_fr:
+          type: string
+          nullable: true
+        categories:
+          type: string
+          readOnly: true
+      required:
+      - brand
+      - categories
+      - id
+      - serving_size_unit
+      - total_size_unit
+    ProductPrediction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product_name:
+          type: string
+        product_size:
+          type: string
+        store_product_images:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              label:
+                type: string
+              image_path:
+                type: string
+          readOnly: true
+        predicted_category:
+          type: object
+          properties:
+            category_id:
+              type: integer
+            category_name:
+              type: string
+            category_code:
+              type: string
+            model_id:
+              type: string
+            confidence:
+              type: number
+              format: float
+            date_predicted:
+              type: string
+              format: date-time
+          readOnly: true
+        confidence:
+          type: number
+          format: double
+      required:
+      - confidence
+      - id
+      - predicted_category
+      - product_name
+      - product_size
+      - store_product_images
+    SimpleCompany:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 512
+      required:
+      - id
+      - name
+    SimpleNutrient:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nutrient_code:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        name:
+          type: string
+          maxLength: 256
+        symbol:
+          type: string
+          maxLength: 256
+        usda_nutrient_code:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        parent:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - name
+      - nutrient_code
+      - symbol
+    SimpleSource:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 512
+      required:
+      - id
+      - name
+    SimpleStore:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 512
+      required:
+      - id
+      - name
+    SimpleStoreProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        store_product_code:
+          type: string
+          maxLength: 512
+        sku:
+          type: string
+          nullable: true
+          maxLength: 512
+        price:
+          type: number
+          format: double
+          nullable: true
+        raw_brand:
+          type: string
+          nullable: true
+          maxLength: 256
+        site_name:
+          type: string
+          nullable: true
+          maxLength: 512
+        total_size:
+          type: string
+          nullable: true
+          maxLength: 500
+      required:
+      - id
+      - store_product_code
+    StoreProductNutritionFact:
+      type: object
+      properties:
+        nutrient:
+          $ref: '#/components/schemas/SimpleNutrient'
+        amount:
+          type: number
+          format: double
+          nullable: true
+        amount_unit:
+          $ref: '#/components/schemas/Unit'
+        daily_value:
+          type: number
+          format: double
+          nullable: true
+      required:
+      - amount_unit
+      - nutrient
+    TokenObtainPair:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - email
+      - password
+      - refresh
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    Unit:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 512
+        description:
+          type: string
+          maxLength: 512
+      required:
+      - description
+      - id
+      - name
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+          title: Name of User
+          maxLength: 255
+        url:
+          type: string
+          format: uri
+          readOnly: true
+      required:
+      - url
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
