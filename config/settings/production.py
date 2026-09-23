@@ -10,7 +10,13 @@ from .base import env
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["example.com"])
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",  # noqa: S104
+    *env.list("DJANGO_ALLOWED_HOSTS", default=["example.com"]),
+]
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-trusted-origins
 # Required (no default) so dev origins from base.py never leak into production.
 CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS")
