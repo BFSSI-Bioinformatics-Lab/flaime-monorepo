@@ -1,15 +1,15 @@
 import React from 'react';
 import SelectInput from '../SelectInput';
 import { Typography } from '@mui/material';
+import useSearchOptions from '../../../hooks/useSearchOptions';
 
 const RegionSelector = ({ value, onSelect }) => {
-    // const { regions, loading } = useRegions();
-    const regions = ["ottawa", "QC", "BC", "ON", "montreal", "vancouver"];
-    const loading = false;
+    // Locations from the API: { value: code (e.g. 'ON'), label: name (e.g. 'Ontario') }
+    const { regionOptions, loading } = useSearchOptions();
 
     const regionsWithDefault = [
         { label: 'Use all regions', value: '-1' },
-        ...regions.map(region => ({ label: region, value: region }))
+        ...regionOptions
     ];
 
     const handleSelectionChange = (newValue) => {

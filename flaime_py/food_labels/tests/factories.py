@@ -8,6 +8,7 @@ from flaime_py.food_labels.models import (
     Batch,
     Category,
     CategoryScheme,
+    Location,
     Nutrient,
     Source,
     Store,
@@ -66,6 +67,15 @@ class NutrientFactory(DjangoModelFactory):
     class Meta:
         model = Nutrient
         django_get_or_create = ["nutrient_code"]
+
+
+class LocationFactory(DjangoModelFactory):
+    name = Sequence(lambda n: f"Province {n}")
+    code = Sequence(lambda n: f"P{n}")
+
+    class Meta:
+        model = Location
+        django_get_or_create = ["code"]
 
 
 class BatchFactory(DjangoModelFactory):

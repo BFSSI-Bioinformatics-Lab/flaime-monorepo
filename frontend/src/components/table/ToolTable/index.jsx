@@ -33,7 +33,7 @@ const ToolTable = ({ columns, data, totalCount, page, rowsPerPage, onPageChange,
       case 'date':
         return item.scrape_batch?.datetime ?? '';
       case 'region':
-        return item.scrape_batch?.region ?? '';
+        return item.location?.name ?? '';
       case 'categories':
         return item.categories && item.categories.length > 0
           ? [...item.categories]

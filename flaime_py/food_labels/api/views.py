@@ -17,8 +17,8 @@ from ..models import (
     Nutrient,
     Source,
     Store,
+    Location,
     StoreProduct,
-    Batch,
     StoreProductImage,
     StoreProductManualCategory,
     StoreProductPredictedCategory,
@@ -144,18 +144,13 @@ def user_info(request):
 def get_search_options(request):
     sources = Source.objects.filter(deleted=False).values("id", "name")
     stores = Store.objects.filter(deleted=False).values("id", "name")
-    region_list = (
-        Batch.objects.exclude(region__isnull=True)
-        .exclude(region__exact="")
-        .values_list("region", flat=True)
-        .distinct()
-    )
+    locations = Location.objects.filter(deleted=False).order_by("name").values("code", "name")
 
     return Response(
         {
             "sources": [{"value": s["id"], "label": s["name"]} for s in sources],
             "stores": [{"value": s["id"], "label": s["name"]} for s in stores],
-            "regions": [{"value": r, "label": r} for r in region_list],
+            "regions": [{"value": l["code"], "label": l["name"]} for l in locations],
             "storage": [
                 {"value": c[0], "label": c[1]} for c in StorageConditions.choices
             ],
@@ -380,7 +375,7 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         queryset, data = self._search_queryset(request)
         queryset = apply_ordering(queryset, data.get("sort"))
         queryset = queryset.select_related(
-            "source", "store", "scrape_batch"
+            "source", "store", "scrape_batch", "location"
         ).prefetch_related(
             Prefetch(
                 "manual_categories",
