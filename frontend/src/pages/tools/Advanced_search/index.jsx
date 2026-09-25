@@ -161,7 +161,7 @@ const AdvancedSearch = () => {
                 {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
                 <Typography variant="h4" style={{ padding: '10px' }}>Advanced Search</Typography>
                 <Typography variant="body1" style={{ padding: '10px', width: '80vw', margin: '0 auto' }}>
-                Enter search terms in any or all of the fields. Note that some fields are only relevant for certain datasets; e.g. Region is only relevant for Web Scrape data, and Store is not recorded for Nielsen data.
+                Enter search terms in any or all of the fields. Note that some fields are only relevant for certain datasets; e.g. Region is not recorded for every dataset, and Store is not recorded for Nielsen data.
                 </Typography>
                 <Divider style={{ width: '60vw', margin: '15px auto 5px auto' }}/>
                 <Typography variant="h5" style={{ padding: '10px' }}>Product Info</Typography>

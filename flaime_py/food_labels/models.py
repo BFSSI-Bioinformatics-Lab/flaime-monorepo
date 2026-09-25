@@ -173,12 +173,14 @@ class Nutrient(BaseModel):
     symbol = models.CharField(max_length=256)
     usda_nutrient_code = models.IntegerField(blank=True, null=True)
     parent = models.ForeignKey('self', models.CASCADE, blank=True, null=True)
+    sort_order = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = True
         db_table = 'nutrients'
         verbose_name = 'Nutrient'
         verbose_name_plural = 'Nutrients'
+        ordering = ['sort_order', 'name']
 
     def __str__(self):
         return self.name
@@ -334,6 +336,7 @@ class StoreProductNutritionFact(BaseModel):
 class StoreProduct(BaseModel):
     id = models.BigIntegerField(primary_key=True) # override autoincrement since we're pulling from flaimeshot now
     store = models.ForeignKey('Store', models.CASCADE)
+    location = models.ForeignKey('Location', models.PROTECT, blank=True, null=True)
     store_product_code = models.CharField(max_length=512)
     sku = models.CharField(max_length=512, blank=True, null=True)
     price = models.FloatField(blank=True, null=True)
@@ -353,6 +356,10 @@ class StoreProduct(BaseModel):
     nutrition_available_flag = models.BooleanField()
     nutrition_facts_json = models.JSONField(blank=True, null=True)
     total_size = models.CharField(max_length=500, blank=True, null=True)
+    total_size_value = models.FloatField(blank=True, null=True)
+    total_size_unit = models.ForeignKey('Unit', models.PROTECT, blank=True, null=True, related_name='+')
+    reference_amount = models.FloatField(blank=True, null=True)
+    reference_amount_unit = models.ForeignKey('Unit', models.PROTECT, blank=True, null=True, related_name='+')
     raw_serving_size = models.CharField(max_length=500, blank=True, null=True)
     serving_size = models.IntegerField(blank=True, null=True)
     serving_size_unit = models.ForeignKey('Unit', models.CASCADE, blank=True, null=True)
@@ -466,6 +473,26 @@ class Store(BaseModel):
         unique_together = (('name', 'deleted'),)
         verbose_name = 'Store'
         verbose_name_plural = 'Stores'
+
+    def __str__(self):
+        return self.name
+
+
+class Location(BaseModel):
+    """Where a product was collected (a province, e.g. Ontario / Quebec).
+
+    This used to be recorded per batch (scrape_batches.region); it is now tracked
+    per store product.
+    """
+    name = models.CharField(max_length=128)
+    code = models.CharField(max_length=8)
+
+    class Meta:
+        managed = True
+        db_table = 'locations'
+        unique_together = (('name', 'deleted'), ('code', 'deleted'))
+        verbose_name = 'Location'
+        verbose_name_plural = 'Locations'
 
     def __str__(self):
         return self.name

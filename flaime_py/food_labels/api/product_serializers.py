@@ -67,6 +67,7 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
     source = SimpleSourceSerializer(read_only=True)
     store = SimpleStoreSerializer(read_only=True)
     scrape_batch = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
     categories = serializers.SerializerMethodField()
     storage_condition = serializers.CharField(source="get_storage_condition_display")
     primary_package_material = serializers.CharField(
@@ -89,6 +90,7 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
             "source",
             "store",
             "scrape_batch",
+            "location",
             "categories",
             "storage_condition",
             "primary_package_material",
@@ -103,17 +105,28 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
             "nullable": True,
             "properties": {
                 "datetime": {"type": "string", "format": "date-time", "nullable": True},
-                "region": {"type": "string", "nullable": True},
             },
         }
     )
     def get_scrape_batch(self, obj):
         if not obj.scrape_batch_id:
             return None
-        return {
-            "datetime": obj.scrape_batch.scrape_datetime,
-            "region": obj.scrape_batch.region,
+        return {"datetime": obj.scrape_batch.scrape_datetime}
+
+    @extend_schema_field(
+        {
+            "type": "object",
+            "nullable": True,
+            "properties": {
+                "code": {"type": "string"},
+                "name": {"type": "string"},
+            },
         }
+    )
+    def get_location(self, obj):
+        if not obj.location_id:
+            return None
+        return {"code": obj.location.code, "name": obj.location.name}
 
     @extend_schema_field(
         {

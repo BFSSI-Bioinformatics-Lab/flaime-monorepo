@@ -24,7 +24,7 @@ SEARCH_ORDERING_FIELDS = {
     "source": "source__name",
     "store": "store__name",
     "date": "scrape_batch__scrape_datetime",
-    "region": "scrape_batch__region",
+    "region": "location__name",
     "storage_condition": "storage_condition",
     "primary_package_material": "primary_package_material",
 }
@@ -80,7 +80,7 @@ class _NutrientFilterSerializer(serializers.Serializer):
 class _SearchFiltersSerializer(serializers.Serializer):
     source = serializers.IntegerField(required=False)
     store = serializers.IntegerField(required=False)
-    region = serializers.CharField(required=False)
+    region = serializers.CharField(required=False)  # a Location code, e.g. "ON"
     category = serializers.ListField(
         child=serializers.IntegerField(),
         required=False,
@@ -154,7 +154,7 @@ def build_search_queryset(text=None, filters=None):
     if filters.get("store") is not None:
         qs = qs.filter(store_id=filters["store"])
     if filters.get("region"):
-        qs = qs.filter(scrape_batch__region=filters["region"])
+        qs = qs.filter(location__code=filters["region"])
     if filters.get("category"):
         # Manual categories are the authoritative ones.
         qs = qs.filter(manual_categories__category_id__in=filters["category"])

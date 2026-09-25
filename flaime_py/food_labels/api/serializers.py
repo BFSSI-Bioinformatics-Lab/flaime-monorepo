@@ -30,7 +30,7 @@ class DetailedStoreSerializer(serializers.ModelSerializer):
 class SimpleNutrientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Nutrient
-        fields = ['id', 'nutrient_code', 'name', 'symbol', 'usda_nutrient_code', 'parent']
+        fields = ['id', 'nutrient_code', 'name', 'symbol', 'usda_nutrient_code', 'parent', 'sort_order']
 
 
 class DetailedNutrientSerializer(serializers.ModelSerializer):

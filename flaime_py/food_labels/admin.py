@@ -3,7 +3,7 @@ from django import forms
 from .models import (
     StoreProduct, StoreProductNutritionFact, StoreProductUPC,
     StoreProductManualCategory,
-    Category, Nutrient, Unit, UPC, Source, Store,
+    Category, Nutrient, Unit, UPC, Source, Store, Location,
     StoreProductAllergensWarning, AllergensWarning
 )
 
@@ -33,6 +33,14 @@ class SourceAdmin(ProtectedModelAdmin):
 @admin.register(Store)
 class StoreAdmin(ProtectedModelAdmin):
     search_fields = ['name']
+    
+    def get_model_perms(self, request):
+        return {}
+
+@admin.register(Location)
+class LocationAdmin(ProtectedModelAdmin):
+    search_fields = ['name', 'code']
+    list_display = ['id', 'name', 'code']
     
     def get_model_perms(self, request):
         return {}
@@ -133,6 +141,7 @@ class StoreProductNutritionFactInline(admin.TabularInline):
     extra = 1
     autocomplete_fields = ['nutrient', 'amount_unit']
     fields = ['nutrient', 'amount', 'amount_unit', 'daily_value', 'supplemented']
+    ordering = ['nutrient__sort_order', 'nutrient__name']
 
 class StoreProductAllergensWarningInline(admin.TabularInline):
     model = StoreProductAllergensWarning
@@ -144,18 +153,21 @@ class StoreProductAllergensWarningInline(admin.TabularInline):
 
 @admin.register(StoreProduct)
 class StoreProductAdmin(ProtectedModelAdmin):
-    list_display = ['id', 'site_name', 'store', 'brand', 'serving_size', 'serving_size_unit', 'source',
+    list_display = ['id', 'site_name', 'store', 'location', 'brand', 'serving_size', 'serving_size_unit', 'source',
                     'verified', 'supplemented_food']
-    list_filter = ['store', 'source', 'verified', 'nutrition_available_flag', 'supplemented_food',
+    list_filter = ['store', 'location', 'source', 'verified', 'nutrition_available_flag', 'supplemented_food',
                    'variety_pack_flag', 'needs_manual_verification', 'verified_nft_ingredients',
                    'storage_condition', 'primary_package_material']
     search_fields = ['site_name', 'store_product_code']
     raw_id_fields = ['brand']
-    autocomplete_fields = ['source', 'store', 'serving_size_unit']
+    autocomplete_fields = ['source', 'store', 'location', 'serving_size_unit',
+                           'total_size_unit', 'reference_amount_unit']
     fields = [
-        'site_name', 'store', 'source',
+        'site_name', ('store', 'location'), 'source',
         'brand',
         ('serving_size', 'serving_size_unit'),
+        ('total_size_value', 'total_size_unit'),
+        ('reference_amount', 'reference_amount_unit'),
         'storage_condition',
         ('primary_package_material', 'secondary_package_material'),
         'num_units',

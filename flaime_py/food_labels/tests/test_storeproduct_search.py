@@ -9,6 +9,7 @@ from .factories import AllergensWarningFactory
 from .factories import BatchFactory
 from .factories import CategoryFactory
 from .factories import CategorySchemeFactory
+from .factories import LocationFactory
 from .factories import NutrientFactory
 from .factories import SourceFactory
 from .factories import StoreFactory
@@ -96,6 +97,16 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
             {"filters": {"source": source.id, "store": store.id}},
             format="json",
         )
+        assert response.data["count"] == 1
+
+    def test_region_filter_uses_location(self):
+        ontario = LocationFactory(name="Ontario", code="ON")
+        quebec = LocationFactory(name="Quebec", code="QC")
+        StoreProductFactory(location=ontario)
+        StoreProductFactory(location=quebec)
+        StoreProductFactory()
+
+        response = self.client.post(self.url, {"filters": {"region": "ON"}}, format="json")
         assert response.data["count"] == 1
 
     def test_category_filter_uses_manual_only(self):
@@ -275,9 +286,10 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
         assert response.data["count"] == 5
         assert response.data["next"] is not None
 
-    def test_scrape_batch_and_categories_in_result_shape(self):
-        batch = BatchFactory(region="Ontario")
-        product = StoreProductFactory(scrape_batch=batch, site_name="Shaped")
+    def test_scrape_batch_location_and_categories_in_result_shape(self):
+        batch = BatchFactory()
+        location = LocationFactory(name="Ontario", code="ON")
+        product = StoreProductFactory(scrape_batch=batch, location=location, site_name="Shaped")
         scheme = CategorySchemeFactory()
         category = CategoryFactory(scheme=scheme, level=2)
         StoreProductManualCategoryFactory(
@@ -292,7 +304,8 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
             format="json",
         )
         row = response.data["results"][0]
-        assert row["scrape_batch"]["region"] == "Ontario"
+        assert row["scrape_batch"]["datetime"] is not None
+        assert row["location"] == {"code": "ON", "name": "Ontario"}
         assert row["categories"][0]["id"] == category.id
         assert row["categories"][0]["level"] == 2
         assert "verified" in row

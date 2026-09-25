@@ -8,6 +8,10 @@ import longosImage from './logos/longos.png';
 import voilaImage from './logos/voila.png';
 import nofrillsImage from './logos/nofrills.png';
 
+// Keyed by the store name upper-cased with punctuation and spaces removed,
+// so "Longo's", "No Frills" and "Save-On-Foods" match LONGOS, NOFRILLS, SAVEONFOODS.
+const storeKey = (name) => (name || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
 const imageMap = {
     COSTCO: costcoImage,
     LOBLAWS: loblawsImage,
@@ -50,14 +54,14 @@ export const ProductStatItem = styled(Paper)(({ theme }) => ({
   }));
 
   export const PageIcon = styled(Box)(({ theme, product }) => ({
-    display: imageMap[product.toUpperCase()] ? 'block' : 'none',
+    display: imageMap[storeKey(product)] ? 'block' : 'none',
     backgroundColor: theme.palette.landing.main,
     padding: theme.spacing(1),
     width: 140,
     height: 40,
     border: 0,
     marginRight: theme.spacing(2),
-    backgroundImage: `url(${imageMap[product.toUpperCase()]})`,
+    backgroundImage: `url(${imageMap[storeKey(product)]})`,
     backgroundSize: 'contain',
     backgroundRepeat: 'no-repeat',
     // backgroundPosition: 'center 10px',

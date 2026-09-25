@@ -5,8 +5,8 @@ from flaime_py.food_labels.models import StorageConditions
 from flaime_py.users.tests.factories import UserFactory
 
 from .factories import (
-    BatchFactory,
     CategoryFactory,
+    LocationFactory,
     CategorySchemeFactory,
     NutrientFactory,
     SourceFactory,
@@ -61,16 +61,20 @@ class SearchOptionsTests(AuthMixin, APITestCase):
     def test_payload_shape(self):
         source = SourceFactory()
         store = StoreFactory()
-        BatchFactory(region="Ontario")
-        BatchFactory(region="")
-        BatchFactory(region=None)
+        LocationFactory(name="Quebec", code="QC")
+        LocationFactory(name="Ontario", code="ON")
+        LocationFactory(name="Gone", code="XX", deleted=True)
 
         response = self.client.get(self.url)
         assert response.status_code == 200
 
         assert {"value": source.id, "label": source.name} in response.data["sources"]
         assert {"value": store.id, "label": store.name} in response.data["stores"]
-        assert response.data["regions"] == [{"value": "Ontario", "label": "Ontario"}]
+        # Sorted by name; soft-deleted locations are left out.
+        assert response.data["regions"] == [
+            {"value": "ON", "label": "Ontario"},
+            {"value": "QC", "label": "Quebec"},
+        ]
         assert StorageConditions.SHELF_STABLE.value in {
             o["value"] for o in response.data["storage"]
         }
