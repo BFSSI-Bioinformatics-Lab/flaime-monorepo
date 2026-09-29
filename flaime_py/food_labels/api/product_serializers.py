@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 
@@ -9,6 +10,7 @@ from .serializers import (
     UnitSerializer,
 )
 from .category_serializers import ProductCategorySerializer
+from ..images import blob_image_urls
 from ..models import (
     StoreProduct,
     StoreProductNutritionFact,
@@ -210,6 +212,7 @@ class DetailedStoreProductSerializer(serializers.ModelSerializer):
     categories = serializers.SerializerMethodField()
     product = serializers.SerializerMethodField()
     store_product_images = serializers.SerializerMethodField()
+    store_product_image_urls = serializers.SerializerMethodField()
     storage_condition = serializers.CharField(source="get_storage_condition_display")
     primary_package_material = serializers.CharField(
         source="get_primary_package_material_display"
@@ -261,6 +264,7 @@ class DetailedStoreProductSerializer(serializers.ModelSerializer):
             "supplemented_food",
             "product",
             "store_product_images",
+            "store_product_image_urls",
         ]
 
     @extend_schema_field(UPCSerializer(many=True))
@@ -280,6 +284,23 @@ class DetailedStoreProductSerializer(serializers.ModelSerializer):
         return [
             img.image_path for img in obj.storeproductimage_set.all() if img.image_path
         ]
+
+    @extend_schema_field(
+        {
+            "type": "array",
+            "nullable": True,
+            "items": {
+                "type": "object",
+                "properties": {"full": {"type": "string"}, "thumb": {"type": "string"}},
+            },
+        },
+    )
+    def get_store_product_image_urls(self, obj):
+        # Azure Blob Storage URLs, in the same order as store_product_images.
+        # Omitted when AZURE_IMAGES_READ_SAS_URL is not set (on-prem image server).
+        if not settings.AZURE_IMAGES_READ_SAS_URL:
+            return None
+        return [blob_image_urls(path) for path in self.get_store_product_images(obj)]
 
     @extend_schema_field(
         {

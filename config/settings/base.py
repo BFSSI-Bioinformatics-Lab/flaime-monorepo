@@ -328,6 +328,14 @@ REST_FRAMEWORK = {
 # Maximum number of rows a single /api/storeproducts/export/ request may return.
 EXPORT_MAX_ROWS = env.int("EXPORT_MAX_ROWS", default=50000)
 
+# Product images in Azure Blob Storage (copied there by nutrient-migration/images).
+# The location and a READ-only SAS token, as one URL:
+#   https://<account>.blob.core.windows.net/<container>[/<prefix>]?<sas>
+# When set, the store product API returns image and thumbnail URLs built from it
+# (store_product_image_urls), and the frontend uses those. When empty, the frontend
+# builds URLs for the on-prem image server (REACT_APP_IMG_SERVER_URL) as before.
+AZURE_IMAGES_READ_SAS_URL = env("AZURE_IMAGES_READ_SAS_URL", default="")
+
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
 CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOW_CREDENTIALS = True

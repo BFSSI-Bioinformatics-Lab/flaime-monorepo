@@ -8,3 +8,5 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      # Azure Blob Storage images: container URL + READ-only SAS. Empty = on-prem image server.
+      - AZURE_IMAGES_READ_SAS_URL=${AZURE_IMAGES_READ_SAS_URL:-}

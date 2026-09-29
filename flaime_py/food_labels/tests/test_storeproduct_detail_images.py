@@ -1,3 +1,4 @@
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -49,3 +50,40 @@ class DetailedStoreProductImageTests(AuthMixin, APITestCase):
         url = reverse("api:storeproduct-detail", kwargs={"pk": product.id})
         response = self.client.get(url)
         assert response.data["store_product_images"] == []
+
+    @override_settings(AZURE_IMAGES_READ_SAS_URL="")
+    def test_no_blob_urls_without_blob_storage(self):
+        product = StoreProductFactory()
+        StoreProductImageFactory(store_product=product, number=1, image_path="a.jpg")
+        url = reverse("api:storeproduct-detail", kwargs={"pk": product.id})
+        response = self.client.get(url)
+        # None values are dropped from the payload (to_representation)
+        assert "store_product_image_urls" not in response.data
+
+    @override_settings(
+        AZURE_IMAGES_READ_SAS_URL="https://acct.blob.core.windows.net/datahub/flaime/?sp=r&sig=abc%3D",
+    )
+    def test_blob_urls(self):
+        product = StoreProductFactory()
+        StoreProductImageFactory(
+            store_product=product, number=2, image_path="2025/1/front_IMG_1[1].JPG",
+        )
+        StoreProductImageFactory(
+            store_product=product, number=1, image_path="FLIP/pic/prod1_photo2_nft",
+        )
+        StoreProductImageFactory(store_product=product, number=3, image_path="")
+        url = reverse("api:storeproduct-detail", kwargs={"pk": product.id})
+        response = self.client.get(url)
+
+        base = "https://acct.blob.core.windows.net/datahub/flaime"
+        sas = "?sp=r&sig=abc%3D"
+        assert response.data["store_product_image_urls"] == [
+            {
+                "full": f"{base}/images/FLIP/pic/prod1_photo2_nft{sas}",
+                "thumb": f"{base}/thumb/FLIP/pic/prod1_photo2_nft{sas}",
+            },
+            {
+                "full": f"{base}/images/2025/1/front_IMG_1%5B1%5D.JPG{sas}",
+                "thumb": f"{base}/thumb/2025/1/front_IMG_1%5B1%5D.JPG{sas}",
+            },
+        ]
