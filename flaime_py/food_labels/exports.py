@@ -119,11 +119,6 @@ _FULL_BASE_HEADERS = [
 _FULL_TRAILER_HEADERS = ["ingredients_en", "product_verified"]
 
 
-def _number(value):
-    """50.0 -> 50, 8.3 -> 8.3: whole numbers export as they did before serving_size became a float."""
-    return int(value) if value == int(value) else value
-
-
 def _display_name(nutrient):
     return next(
         (dn for dn, db in NUTRIENT_ORDER if db == nutrient.name),
@@ -254,7 +249,7 @@ def _full_row(
         ref_amount_cat,
         sp.total_size or "",
         sp.raw_serving_size or "",
-        _number(sp.serving_size) if sp.serving_size else "",
+        sp.serving_size or "",
         sp.serving_size_unit.name if sp.serving_size_unit else "",
     ]
 
