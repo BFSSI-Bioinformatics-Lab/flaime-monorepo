@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid, Paper } from '@mui/material';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
@@ -17,6 +17,23 @@ const ProductImages = ({ product }) => {
               full: `${process.env.REACT_APP_IMG_SERVER_URL}/images/${imagePath}`,
               thumb: `${process.env.REACT_APP_IMG_SERVER_URL}/thumb/${imagePath}`,
           }));
+
+    // TEMPORARY troubleshooting: report which image source is in use. Logs only
+    // the host and path, never the query string (the Azure SAS token lives there).
+    const usingBlob = Array.isArray(product?.store_product_image_urls);
+    useEffect(() => {
+        if (images.length === 0) return;
+        let where;
+        try {
+            const u = new URL(images[0].thumb, window.location.origin);
+            where = `${u.host}${u.pathname.replace(/\/thumb\/.*$/, '')}`;
+        } catch {
+            where = '(unparseable URL)';
+        }
+        console.info(
+            `[ProductImages] ${usingBlob ? 'Azure Blob Storage' : 'on-prem image server (store_product_image_urls absent from API response)'}: ${where}`
+        );
+    }, [product?.id, usingBlob]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleImageError = (e) => {
         e.target.style.display = 'none';
