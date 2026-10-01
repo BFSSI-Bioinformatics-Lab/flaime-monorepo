@@ -329,7 +329,7 @@ class StoreProduct(BaseModel):
     reference_amount = models.FloatField(blank=True, null=True)
     reference_amount_unit = models.ForeignKey('Unit', models.PROTECT, blank=True, null=True, related_name='+')
     raw_serving_size = models.CharField(max_length=500, blank=True, null=True)
-    serving_size = models.IntegerField(blank=True, null=True)
+    serving_size = models.FloatField(blank=True, null=True)
     serving_size_unit = models.ForeignKey('Unit', models.CASCADE, blank=True, null=True)
     ingredient_en = models.TextField(blank=True, null=True)
     ingredient_fr = models.TextField(blank=True, null=True)

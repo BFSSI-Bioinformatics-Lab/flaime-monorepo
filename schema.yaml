@@ -1379,9 +1379,8 @@ components:
           type: string
           readOnly: true
         serving_size:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
+          type: number
+          format: double
           nullable: true
         serving_size_unit:
           type: string

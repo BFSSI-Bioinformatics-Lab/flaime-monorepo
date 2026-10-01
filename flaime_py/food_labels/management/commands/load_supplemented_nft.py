@@ -351,7 +351,7 @@ class Command(BaseCommand):
             supplemental_nft = self._parse_supplemental_nutrients(row['Supplemental Nutrients'])
         
         if 'Serving Amount' in row and pd.notna(row['Serving Amount']):
-            serving_size_info['serving_size'] = int(row['Serving Amount'])
+            serving_size_info['serving_size'] = float(row['Serving Amount'])
         
         if 'Serving Unit' in row and pd.notna(row['Serving Unit']):
             serving_size_info['serving_unit'] = row['Serving Unit']
