@@ -189,7 +189,7 @@ const CategoryVerificationSetup = () => {
                 <CardContent>
                   <Box className="flex justify-between items-start mb-3">
                     <Typography variant="h6" component="h3">
-                      {source?.name || `Source ${combo.sourceId}`}
+                      {source?.name || `Collection ${combo.sourceId}`}
                     </Typography>
                     <Chip 
                       label={scheme?.name || `Scheme ${combo.schemeId}`} 

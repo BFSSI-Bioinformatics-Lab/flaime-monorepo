@@ -100,7 +100,7 @@ const ProductBrowser = () => {
     <div style={{ width: '80vw', margin: '0 auto' }}>
       <Typography variant="h4" style={{ padding: '10px' }}>Product Browser</Typography>
       <Typography variant="body1" style={{ padding: '10px', width: '80vw', margin: '0 auto' }}>
-        Search for products by ID, external ID (e.g. FLIP product ID), data source or product name. Use the form below to search for products. Note that you can also search by more than one search term at once.
+        Search for products by ID, external ID (e.g. FLIP product ID), collection or product name. Use the form below to search for products. Note that you can also search by more than one search term at once.
         <ul>
           <li>Product name search supports partial matching (e.g. "cone" will also match "cones", and "School" will match "SchoolSafe").</li>
         </ul>
@@ -143,7 +143,7 @@ const SearchForm = React.memo(({ searchTerms, handleSearchChange, handleSourceNa
         value={searchTerms.sourceName}
         onSelect={handleSourceNameSearch}
         showTitle={false}
-        label="Search by Data Source"
+        label="Search by Collection"
       />
     </div>
     <div style={{ display: 'flex', justifyContent: 'space-evenly', margin: '10px 20px' }}>
@@ -202,7 +202,7 @@ const BROWSER_COLUMNS = [
   { header: 'Assigned Flaime ID', field: 'id' },
   { header: 'External ID', field: 'external_id' },
   { header: 'Store Name', field: 'store' },
-  { header: 'Data Source', field: 'source' },
+  { header: 'Collection', field: 'source' },
   { header: 'Product Name', field: 'name' },
   { header: 'Category Name', field: null },
 ];

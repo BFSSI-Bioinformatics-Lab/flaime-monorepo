@@ -7,7 +7,7 @@ const SourceSelector = ({ value, onSelect, showTitle, label }) => {
     const { sources, loading } = useSources();
 
     const sourcesWithDefault = [
-        { label: 'Use all sources', value: '-1' },
+        { label: 'Use all collections', value: '-1' },
         ...sources
     ];
 

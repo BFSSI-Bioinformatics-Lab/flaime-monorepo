@@ -3,6 +3,7 @@ import { GetSearchOptions } from '../api/services/SearchOptionsService';
 
 const useSearchOptions = () => {
   const [sourceOptions, setSourceOptions] = useState([]);
+  const [sourceGroupOptions, setSourceGroupOptions] = useState([]);
   const [storeOptions, setStoreOptions] = useState([]);
   const [regionOptions, setRegionOptions] = useState([]);
   const [storageOptions, setStorageOptions] = useState([]);
@@ -21,6 +22,7 @@ const useSearchOptions = () => {
           const data = result.data;
           
           if (data.sources) setSourceOptions(data.sources);
+          if (data.source_groups) setSourceGroupOptions(data.source_groups);
           if (data.stores) setStoreOptions(data.stores);
           if (data.regions) setRegionOptions(data.regions);
           if (data.storage) setStorageOptions(data.storage);
@@ -38,6 +40,7 @@ const useSearchOptions = () => {
 
   return { 
     sourceOptions, 
+    sourceGroupOptions,
     storeOptions, 
     regionOptions, 
     storageOptions, 

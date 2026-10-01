@@ -42,6 +42,7 @@ export const SORT_FIELD_MAP = {
   name: 'site_name',
   price: 'price',
   source: 'source',
+  source_group: 'source_group',
   store: 'store',
   date: 'date',
   region: 'region',
@@ -82,6 +83,7 @@ const buildCommonFilters = (searchInputs) => {
   const filters = {};
 
   addIfSet(filters, 'source', searchInputs.Source?.value ?? null);
+  addIfSet(filters, 'source_group', searchInputs.SourceGroup?.value ?? null);
   addIfSet(filters, 'store', searchInputs.Store?.value ?? null);
   addIfSet(filters, 'region', searchInputs.Region?.value ?? null);
 

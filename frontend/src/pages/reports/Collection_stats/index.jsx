@@ -93,7 +93,7 @@ const CollectionStats = () => {
         <PageContainer>
             <Typography variant="h4" style={{ padding: '10px' }}>Collection Statistics</Typography>
             <Typography variant="body1" style={{ padding: '10px', width: '80vw', margin: '0 auto' }}>
-                Select a collection (source) to view summary statistics for its products, or load statistics across every collection.
+                Select a collection to view summary statistics for its products, or load statistics across every collection.
                 Statistics are currently broken down by collection; breakdown by reference amount (RA) category will be added in a future update.
             </Typography>
 
