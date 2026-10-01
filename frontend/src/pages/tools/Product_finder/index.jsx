@@ -5,6 +5,7 @@ import PageContainer from '../../../components/page/PageContainer';
 import TextFileInput from '../../../components/inputs/TextFileInput';
 import StoreSelector from '../../../components/inputs/StoreSelector';
 import SourceSelector from '../../../components/inputs/SourceSelector';
+import SourceGroupSelector from '../../../components/inputs/SourceGroupSelector';
 import RegionSelector from '../../../components/inputs/RegionSelector';
 import SingleDatePicker from '../../../components/inputs/SingleDatePicker';
 import { useSearchFilters, buildProductFinderBody, SORT_FIELD_MAP } from '../util';
@@ -23,6 +24,7 @@ const INITIAL_COLUMNS_VISIBILITY = {
   name: true,
   price: true,
   source: true,
+  source_group: true,
   store: true,
   date: true,
   region: true,
@@ -38,6 +40,7 @@ const ProductFinder = () => {
   const initialFilters = {
     TextEntries: { value: [] },
     Source: { value: null },
+    SourceGroup: { value: null },
     Store: { value: null },
     Region: { value: null },
     StartDate: { value: null },
@@ -80,6 +83,7 @@ const ProductFinder = () => {
   const handleReset = () => {
     handleInputChange('TextEntries', { value: [] });
     handleInputChange('Source', { value: null });
+    handleInputChange('SourceGroup', { value: null });
     handleInputChange('Store', { value: null });
     handleInputChange('Region', { value: null });
     handleInputChange('StartDate', { value: '1900-01-01' });
@@ -116,6 +120,10 @@ const ProductFinder = () => {
     handleInputChange('Source', { value: selectedSource === '-1' ? null : selectedSource });
   };
 
+  const handleSourceGroupChange = (selectedGroup) => {
+    handleInputChange('SourceGroup', { value: selectedGroup === '-1' ? null : selectedGroup });
+  };
+
   const handleRegionChange = (selectedRegion) => {
     handleInputChange('Region', { value: selectedRegion === '-1' ? null : selectedRegion });
   };
@@ -138,7 +146,7 @@ return (
     <div>
       <Typography variant="h4" style={{ padding: '10px' }}>Product Finder</Typography>
       <Typography variant="body1" style={{ padding: '10px', width: '80vw', margin: '0 auto' }}>
-        Here you can enter a list of product names or FLAIME IDs to search for. <br/> You can also further filter by source, region, and store.
+        Here you can enter a list of product names or FLAIME IDs to search for. <br/> You can also further filter by collection, source, region, and store.
       </Typography>
       <Divider style={{ width: '60vw', margin: '15px auto 15px auto' }}/>
       <FormControl style={{ margin: '0 25%' }}>
@@ -186,12 +194,16 @@ return (
         })()}
       </div>
       <Divider style={{ width: '60vw', margin: '15px auto 5px auto' }}/>
-      <div style={{ display: 'flex', justifyContent: 'space-around', paddingBottom: '25px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', rowGap: '20px', justifyContent: 'space-around', paddingBottom: '25px' }}>
         <SourceSelector
           value={searchInputs.Source.value}
           onSelect={handleSourceChange}
           showTitle={true}
-          label="Select a source"
+          label="Select a collection"
+        />
+        <SourceGroupSelector
+          value={searchInputs.SourceGroup.value}
+          onSelect={handleSourceGroupChange}
         />
         <RegionSelector
           value={searchInputs.Region.value}

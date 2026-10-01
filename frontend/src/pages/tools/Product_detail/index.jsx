@@ -99,7 +99,8 @@ const ProductDetail = () => {
     const productDescItems = [
         { name: "Product Name", value: product.site_name },
         { name: "Store", value: product.store },
-        { name: "Source", value: product.source },
+        { name: "Collection", value: product.source },
+        { name: "Source", value: product.source_group || "None" },
         { name: "Product Code", value: product.store_product_code || "None" },
         { name: "UPC", value: linkedUpcValue || "None" },
         { name: "Total Size", value: product.total_size || "Not specified" },

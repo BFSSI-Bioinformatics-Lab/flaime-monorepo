@@ -22,6 +22,7 @@ const COLUMN_ORDER = [
     'name',
     'price',
     'source',
+    'source_group',
     'store',
     'date',
     'region',
@@ -37,6 +38,7 @@ const INITIAL_COLUMNS_VISIBILITY = {
     name: true,
     price: true,
     source: true,
+    source_group: true,
     store: true,
     date: true,
     region: true,
@@ -76,6 +78,7 @@ const AdvancedSearch = () => {
         IngredientsMatch: 'all',
         Categories: { value: [] },
         Source: { value: null },
+        SourceGroup: { value: null },
         Store: { value: null },
         Region: { value: null },
         StartDate: { value: null },
@@ -83,7 +86,7 @@ const AdvancedSearch = () => {
         Nutrition: { nutrient: '', minAmount: '', maxAmount: '' },
     };
 
-    const { storageOptions, packagingOptions, sourceOptions, storeOptions, regionOptions } = useSearchOptions();
+    const { storageOptions, packagingOptions, sourceOptions, sourceGroupOptions, storeOptions, regionOptions } = useSearchOptions();
     const [searchInputs, handleInputChange] = useSearchFilters(initialFilters);
     const [errorMessage, setErrorMessage] = useState('');
     const [resetKey, setResetKey] = useState(0);
@@ -213,16 +216,16 @@ const AdvancedSearch = () => {
                 <Divider style={{ width: '60vw', margin: '10px auto' }}/>
 
                <Typography variant="h5" style={{ padding: '10px' }}>Attributes & Location</Typography>
-               <div style={{ display: 'flex', justifyContent: 'space-around', paddingBottom: '25px', marginTop: '20px' }}>
-                    <div style={{ width: '30%', minWidth: '280px', maxWidth: '320px' }}>
+               <div style={{ display: 'flex', flexWrap: 'wrap', rowGap: '20px', justifyContent: 'space-around', paddingBottom: '25px', marginTop: '20px' }}>
+                    <div style={{ width: '23%', minWidth: '240px', maxWidth: '320px' }}>
                         <FormControl variant="outlined" fullWidth>
-                            <InputLabel>Select a source</InputLabel>
+                            <InputLabel>Select a collection</InputLabel>
                             <Select
                                 value={searchInputs.Source.value || '-1'}
                                 onChange={(e) => handleSelectorChange('Source')(e.target.value)}
-                                label="Select a source"
+                                label="Select a collection"
                             >
-                                <MenuItem value="-1">Use all sources</MenuItem>
+                                <MenuItem value="-1">Use all collections</MenuItem>
                                 {sourceOptions.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                                 ))}
@@ -230,7 +233,23 @@ const AdvancedSearch = () => {
                         </FormControl>
                     </div>
 
-                    <div style={{ width: '30%', minWidth: '280px', maxWidth: '320px' }}>
+                    <div style={{ width: '23%', minWidth: '240px', maxWidth: '320px' }}>
+                        <FormControl variant="outlined" fullWidth>
+                            <InputLabel>Select a source</InputLabel>
+                            <Select
+                                value={searchInputs.SourceGroup.value || '-1'}
+                                onChange={(e) => handleSelectorChange('SourceGroup')(e.target.value)}
+                                label="Select a source"
+                            >
+                                <MenuItem value="-1">Use all sources</MenuItem>
+                                {sourceGroupOptions.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </div>
+
+                    <div style={{ width: '23%', minWidth: '240px', maxWidth: '320px' }}>
                         <FormControl variant="outlined" fullWidth>
                             <InputLabel>Select a Region</InputLabel>
                             <Select
@@ -246,7 +265,7 @@ const AdvancedSearch = () => {
                         </FormControl>
                     </div>
 
-                    <div style={{ width: '30%', minWidth: '280px', maxWidth: '320px' }}>
+                    <div style={{ width: '23%', minWidth: '240px', maxWidth: '320px' }}>
                          <FormControl variant="outlined" fullWidth>
                             <InputLabel>Select a Store</InputLabel>
                             <Select

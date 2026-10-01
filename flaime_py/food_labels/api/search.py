@@ -22,6 +22,7 @@ SEARCH_ORDERING_FIELDS = {
     "site_name": "site_name",
     "price": "price",
     "source": "source__name",
+    "source_group": "source__group__name",
     "store": "store__name",
     "date": "scrape_batch__scrape_datetime",
     "region": "location__name",
@@ -79,6 +80,7 @@ class _NutrientFilterSerializer(serializers.Serializer):
 
 class _SearchFiltersSerializer(serializers.Serializer):
     source = serializers.IntegerField(required=False)
+    source_group = serializers.IntegerField(required=False)
     store = serializers.IntegerField(required=False)
     region = serializers.CharField(required=False)  # a Location code, e.g. "ON"
     category = serializers.ListField(
@@ -151,6 +153,8 @@ def build_search_queryset(text=None, filters=None):
 
     if filters.get("source") is not None:
         qs = qs.filter(source_id=filters["source"])
+    if filters.get("source_group") is not None:
+        qs = qs.filter(source__group_id=filters["source_group"])
     if filters.get("store") is not None:
         qs = qs.filter(store_id=filters["store"])
     if filters.get("region"):
@@ -191,8 +195,8 @@ def build_search_queryset(text=None, filters=None):
     allergens = (filters.get("allergens") or "").strip()
     if allergens:
         qs = qs.filter(
-            Q(allergens_warnings__contains_en__icontains=allergens)
-            | Q(allergens_warnings__may_contain_en__icontains=allergens),
+            Q(contains_en__icontains=allergens)
+            | Q(may_contain_en__icontains=allergens),
         )
 
     nutrient = filters.get("nutrient") or {}

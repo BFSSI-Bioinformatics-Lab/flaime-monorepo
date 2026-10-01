@@ -1430,10 +1430,6 @@ components:
           type: string
         needs_manual_verification:
           type: boolean
-        verified_nft_ingredients:
-          allOf:
-          - $ref: '#/components/schemas/VerifiedNftIngredientsEnum'
-          title: Verified NFT
         verified:
           type: boolean
           title: Entire product manually verified
@@ -2133,20 +2129,6 @@ components:
       - is_staff
       - is_superuser
       - username
-    VerifiedNftIngredientsEnum:
-      enum:
-      - unknown
-      - manually_entered
-      - ocr_verified
-      - ocr_unverified
-      - external
-      type: string
-      description: |-
-        * `unknown` - Unknown
-        * `manually_entered` - Manually Entered
-        * `ocr_verified` - OCR (Manually Verified)
-        * `ocr_unverified` - OCR (Unverified)
-        * `external` - External
     _IngredientsFilter:
       type: object
       properties:

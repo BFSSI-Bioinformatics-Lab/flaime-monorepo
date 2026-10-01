@@ -5,15 +5,14 @@ from rest_framework.test import APITestCase
 
 from flaime_py.users.tests.factories import UserFactory
 
-from .factories import AllergensWarningFactory
 from .factories import BatchFactory
 from .factories import CategoryFactory
 from .factories import CategorySchemeFactory
 from .factories import LocationFactory
 from .factories import NutrientFactory
 from .factories import SourceFactory
+from .factories import SourceGroupFactory
 from .factories import StoreFactory
-from .factories import StoreProductAllergensWarningFactory
 from .factories import StoreProductFactory
 from .factories import StoreProductManualCategoryFactory
 from .factories import StoreProductNutritionFactFactory
@@ -98,6 +97,22 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
             format="json",
         )
         assert response.data["count"] == 1
+
+    def test_source_group_filter(self):
+        group = SourceGroupFactory(name="Total Diet Study")
+        hit = StoreProductFactory(source=SourceFactory(group=group))
+        StoreProductFactory(source=SourceFactory())
+
+        response = self.client.post(
+            self.url, {"filters": {"source_group": group.id}}, format="json",
+        )
+        assert [r["id"] for r in response.data["results"]] == [hit.id]
+        assert response.data["results"][0]["source_group"] == "Total Diet Study"
+
+    def test_source_group_is_null_without_group(self):
+        StoreProductFactory(source=SourceFactory())
+        response = self.client.post(self.url, {}, format="json")
+        assert response.data["results"][0]["source_group"] is None
 
     def test_region_filter_uses_location(self):
         ontario = LocationFactory(name="Ontario", code="ON")
@@ -186,22 +201,8 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
         assert response.data["count"] == 1
 
     def test_allergens_substring_over_contains_or_may_contain(self):
-        hit = StoreProductFactory()
-        StoreProductAllergensWarningFactory(
-            store_product=hit,
-            allergens_warning=AllergensWarningFactory(
-                contains_en="",
-                may_contain_en="may contain peanuts",
-            ),
-        )
-        miss = StoreProductFactory()
-        StoreProductAllergensWarningFactory(
-            store_product=miss,
-            allergens_warning=AllergensWarningFactory(
-                contains_en="milk",
-                may_contain_en="",
-            ),
-        )
+        hit = StoreProductFactory(contains_en="", may_contain_en="may contain peanuts")
+        StoreProductFactory(contains_en="milk", may_contain_en="")
         response = self.client.post(
             self.url,
             {"filters": {"allergens": "peanut"}},

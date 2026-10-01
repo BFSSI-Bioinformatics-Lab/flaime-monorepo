@@ -89,7 +89,7 @@ class StoreProductExportTests(AuthMixin, APITestCase):
         expected = build_headers("full", resolve_nutrients())
         assert rows[0] == expected
         assert rows[0][:3] == ["flaime_id", "source", "storage_condition"]
-        assert rows[0][-3:] == ["ingredients_en", "nft_verified", "product_verified"]
+        assert rows[0][-2:] == ["ingredients_en", "product_verified"]
 
     def test_full_supplemented_adds_flag_columns(self):
         product = StoreProductFactory()

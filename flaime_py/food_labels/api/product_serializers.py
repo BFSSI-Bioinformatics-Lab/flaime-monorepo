@@ -15,9 +15,28 @@ from ..models import (
     StoreProduct,
     StoreProductNutritionFact,
     SuppFoodLabelFlags,
-    AllergensWarning,
     UPC,
 )
+
+ALLERGEN_FIELDS = ["contains_en", "contains_fr", "may_contain_en", "may_contain_fr"]
+
+# The allergen statements are columns on the store product now (migration 0045). The API
+# keeps its old shape, a list of statements, which now holds at most one entry.
+ALLERGENS_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            field: {"type": "string", "nullable": True} for field in ALLERGEN_FIELDS
+        },
+    },
+}
+
+
+def allergen_statements(obj):
+    statement = {field: getattr(obj, field) for field in ALLERGEN_FIELDS}
+    return [statement] if any(statement.values()) else []
+
 
 CATEGORIES_SCHEMA = {
     "type": "object",
@@ -67,6 +86,7 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
     """
 
     source = SimpleSourceSerializer(read_only=True)
+    source_group = serializers.CharField(source="source.group.name", default=None, read_only=True)
     store = SimpleStoreSerializer(read_only=True)
     scrape_batch = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
@@ -90,6 +110,7 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
             "nielsen_upc",
             "price",
             "source",
+            "source_group",
             "store",
             "scrape_batch",
             "location",
@@ -152,23 +173,9 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
             )
         return sorted(seen.values(), key=lambda c: c["level"])
 
-    @extend_schema_field(
-        {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "contains_en": {"type": "string", "nullable": True},
-                    "may_contain_en": {"type": "string", "nullable": True},
-                },
-            },
-        }
-    )
+    @extend_schema_field(ALLERGENS_SCHEMA)
     def get_allergens_warnings(self, obj):
-        return [
-            {"contains_en": w.contains_en, "may_contain_en": w.may_contain_en}
-            for w in obj.allergens_warnings.all()
-        ]
+        return allergen_statements(obj)
 
 
 class StoreProductNutritionFactSerializer(serializers.ModelSerializer):
@@ -186,28 +193,17 @@ class SuppFoodLabelFlagsSerializer(serializers.ModelSerializer):
         exclude = ["id", "store_product"]
 
 
-class AllergensWarningSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AllergensWarning
-        fields = [
-            "id",
-            "contains_en",
-            "contains_fr",
-            "may_contain_en",
-            "may_contain_fr",
-        ]
-
-
 class DetailedStoreProductSerializer(serializers.ModelSerializer):
     store = serializers.StringRelatedField()
     source = serializers.StringRelatedField()
+    source_group = serializers.CharField(source="source.group.name", default=None, read_only=True)
     brand = serializers.StringRelatedField()
     serving_size_unit = serializers.StringRelatedField()
     company = SimpleCompanySerializer()
     nutrition_facts = StoreProductNutritionFactSerializer(many=True, read_only=True)
     external_id = serializers.StringRelatedField()
     label_flags = SuppFoodLabelFlagsSerializer(read_only=True)
-    allergens_warnings = AllergensWarningSerializer(many=True, read_only=True)
+    allergens_warnings = serializers.SerializerMethodField()
     upcs = serializers.SerializerMethodField()
     categories = serializers.SerializerMethodField()
     product = serializers.SerializerMethodField()
@@ -247,6 +243,7 @@ class DetailedStoreProductSerializer(serializers.ModelSerializer):
             "ingredient_en",
             "ingredient_fr",
             "source",
+            "source_group",
             "company",
             "created_datetime",
             "modified_datetime",
@@ -258,7 +255,6 @@ class DetailedStoreProductSerializer(serializers.ModelSerializer):
             "primary_package_material",
             "secondary_package_material",
             "needs_manual_verification",
-            "verified_nft_ingredients",
             "verified",
             "variety_pack_flag",
             "supplemented_food",
@@ -266,6 +262,10 @@ class DetailedStoreProductSerializer(serializers.ModelSerializer):
             "store_product_images",
             "store_product_image_urls",
         ]
+
+    @extend_schema_field(ALLERGENS_SCHEMA)
+    def get_allergens_warnings(self, obj):
+        return allergen_statements(obj)
 
     @extend_schema_field(UPCSerializer(many=True))
     def get_upcs(self, obj):

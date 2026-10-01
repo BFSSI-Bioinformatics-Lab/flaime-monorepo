@@ -16,6 +16,7 @@ from ..models import (
     CategoryScheme,
     Nutrient,
     Source,
+    SourceGroup,
     Store,
     Location,
     StoreProduct,
@@ -132,6 +133,7 @@ def user_info(request):
         name='SearchOptionsResponse',
         fields={
             'sources': serializers.ListField(child=serializers.DictField()),
+            'source_groups': serializers.ListField(child=serializers.DictField()),
             'stores': serializers.ListField(child=serializers.DictField()),
             'regions': serializers.ListField(child=serializers.DictField()),
             'storage': serializers.ListField(child=serializers.DictField()),
@@ -143,12 +145,14 @@ def user_info(request):
 @permission_classes([IsAuthenticated])
 def get_search_options(request):
     sources = Source.objects.filter(deleted=False).values("id", "name")
+    source_groups = SourceGroup.objects.filter(deleted=False).order_by("name").values("id", "name")
     stores = Store.objects.filter(deleted=False).values("id", "name")
     locations = Location.objects.filter(deleted=False).order_by("name").values("code", "name")
 
     return Response(
         {
             "sources": [{"value": s["id"], "label": s["name"]} for s in sources],
+            "source_groups": [{"value": g["id"], "label": g["name"]} for g in source_groups],
             "stores": [{"value": s["id"], "label": s["name"]} for s in stores],
             "regions": [{"value": l["code"], "label": l["name"]} for l in locations],
             "storage": [
@@ -299,7 +303,7 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action in ["retrieve", "full"]:
             return queryset.select_related(
                 "store",
-                "source",
+                "source__group",
                 "brand",
                 "serving_size_unit",
                 "company",
@@ -308,7 +312,6 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
                 "nutrition_facts",
                 "nutrition_facts__nutrient",
                 "nutrition_facts__amount_unit",
-                "allergens_warnings",
                 Prefetch(
                     "storeproductupc_set",
                     queryset=StoreProductUPC.objects.select_related("upc"),
@@ -375,13 +378,12 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         queryset, data = self._search_queryset(request)
         queryset = apply_ordering(queryset, data.get("sort"))
         queryset = queryset.select_related(
-            "source", "store", "scrape_batch", "location"
+            "source__group", "store", "scrape_batch", "location"
         ).prefetch_related(
             Prefetch(
                 "manual_categories",
                 queryset=StoreProductManualCategory.objects.select_related("category"),
             ),
-            "allergens_warnings",
         )
 
         paginator = StoreProductSearchPagination()

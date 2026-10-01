@@ -8,7 +8,6 @@ from flaime_py.food_labels.models import (
     StoreProductNutritionFact,
     StoreProductImage,
     Source,
-    VerifiedNftIngredients,
 )
 import pandas as pd
 import numpy as np
@@ -527,7 +526,6 @@ class Command(BaseCommand):
                 "supplemented_food": supplemented_food,
                 "verified": True,
                 "nutrition_available_flag": True,
-                "verified_nft_ingredients": VerifiedNftIngredients.OCR_UNVERIFIED,
                 "raw_serving_size": row.get("Measure Description"),
             }
 

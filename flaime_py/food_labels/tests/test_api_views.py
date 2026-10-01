@@ -10,6 +10,7 @@ from .factories import (
     CategorySchemeFactory,
     NutrientFactory,
     SourceFactory,
+    SourceGroupFactory,
     StoreFactory,
     StoreProductFactory,
     StoreProductManualCategoryFactory,
@@ -60,6 +61,7 @@ class SearchOptionsTests(AuthMixin, APITestCase):
 
     def test_payload_shape(self):
         source = SourceFactory()
+        group = SourceGroupFactory(name="FLIP")
         store = StoreFactory()
         LocationFactory(name="Quebec", code="QC")
         LocationFactory(name="Ontario", code="ON")
@@ -69,6 +71,7 @@ class SearchOptionsTests(AuthMixin, APITestCase):
         assert response.status_code == 200
 
         assert {"value": source.id, "label": source.name} in response.data["sources"]
+        assert {"value": group.id, "label": "FLIP"} in response.data["source_groups"]
         assert {"value": store.id, "label": store.name} in response.data["stores"]
         # Sorted by name; soft-deleted locations are left out.
         assert response.data["regions"] == [

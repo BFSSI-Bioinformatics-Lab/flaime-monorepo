@@ -4,14 +4,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-class VerifiedNftIngredients(models.TextChoices):
-    UNKNOWN = 'unknown', ('Unknown')
-    MANUALLY_ENTERED = 'manually_entered', ('Manually Entered')
-    OCR_VERIFIED = 'ocr_verified', ('OCR (Manually Verified)')
-    OCR_UNVERIFIED = 'ocr_unverified', ('OCR (Unverified)')
-    EXTERNAL = 'external', ('External')
-
-
 class StorageConditions(models.TextChoices):
     SHELF_STABLE = "shelf_stable", ("Shelf Stable")
     FRIDGE = "fridge", ("Fridge")
@@ -46,39 +38,6 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
         app_label = "food_labels"
-
-
-class AllergensWarning(BaseModel):
-    contains_en = models.TextField(blank=True, null=True)
-    contains_fr = models.TextField(blank=True, null=True)
-    may_contain_en = models.TextField(blank=True, null=True)
-    may_contain_fr = models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'allergens_warnings'
-        verbose_name = 'Allergens Warning'
-        verbose_name_plural = 'Allergens Warnings'
-        # Removed unique_allergen_combination constraint: NULLs in the four
-        # fields aren't treated as equal by Postgres, so it wasn't actually
-        # preventing duplicates for rows with any null field. Existing data
-        # has duplicates from this. Need to clean up dupes and pick a real
-        # dedup strategy (e.g. normalize NULL -> '') before re-adding.
-        #constraints = [
-        #    models.UniqueConstraint(
-        #        fields=['contains_en', 'contains_fr', 'may_contain_en', 'may_contain_fr'],
-        #        name='unique_allergen_combination'
-        #    )
-        # ]
-
-    def __str__(self):
-        parts = []
-        if self.contains_en:
-            parts.append(f"Contains: {self.contains_en}")
-        if self.may_contain_en:
-            parts.append(f"May contain: {self.may_contain_en}")
-        return "; ".join(parts) if parts else "No allergen info"
-
 
 
 class Brand(BaseModel):
@@ -252,12 +211,17 @@ class Batch(BaseModel):
         return f"Scrape id {self.id} date {self.scrape_datetime}"
 
 
-class Source(BaseModel):
-    name = models.CharField(max_length=512)
+# Naming: the app shows a Source as a "Collection" (e.g. "2026 Snack Foods Collection",
+# "FLIP 2017") and a SourceGroup as a "Source" (FLIP, Nielsen, Total Diet Study, Label
+# Collection). The code, tables and API keep the original names.
+
+class SourceGroup(BaseModel):
+    """Where a collection came from: Nielsen, FLIP, Total Diet Study or Label Collection."""
+    name = models.CharField(max_length=128)
 
     class Meta:
         managed = True
-        db_table = 'sources'
+        db_table = 'source_groups'
         unique_together = (('name', 'deleted'),)
         verbose_name = 'Source'
         verbose_name_plural = 'Sources'
@@ -266,16 +230,20 @@ class Source(BaseModel):
         return self.name
 
 
-class StoreProductAllergensWarning(BaseModel):
-    store_product = models.ForeignKey('StoreProduct', models.CASCADE)
-    allergens_warning = models.ForeignKey('AllergensWarning', models.CASCADE)
+class Source(BaseModel):
+    """A collection of products, e.g. "2026 Snack Foods Collection" or "FLIP 2017"."""
+    name = models.CharField(max_length=512)
+    group = models.ForeignKey('SourceGroup', models.PROTECT, blank=True, null=True, verbose_name='Source')
 
     class Meta:
         managed = True
-        db_table = 'store_product_allergens_warnings'
-        unique_together = (('store_product', 'allergens_warning'),)
-        verbose_name = 'SP Allergens Warning'
-        verbose_name_plural = 'SP Allergens Warnings'
+        db_table = 'sources'
+        unique_together = (('name', 'deleted'),)
+        verbose_name = 'Collection'
+        verbose_name_plural = 'Collections'
+
+    def __str__(self):
+        return self.name
 
 
 class StoreProductBullet(BaseModel):
@@ -365,20 +333,20 @@ class StoreProduct(BaseModel):
     serving_size_unit = models.ForeignKey('Unit', models.CASCADE, blank=True, null=True)
     ingredient_en = models.TextField(blank=True, null=True)
     ingredient_fr = models.TextField(blank=True, null=True)
+    # Allergen statements belong to one product, so editing one never changes another.
+    # They replaced the shared allergens_warnings rows in migration 0045.
+    contains_en = models.TextField(blank=True, null=True)
+    contains_fr = models.TextField(blank=True, null=True)
+    may_contain_en = models.TextField(blank=True, null=True)
+    may_contain_fr = models.TextField(blank=True, null=True)
     raw_upc = models.CharField(max_length=512, blank=True, null=True)
     verified = models.BooleanField(verbose_name='Entire product manually verified')
     verified_by = models.CharField(max_length=256, blank=True, null=True)
     atwater_result = models.CharField(max_length=64, blank=True, null=True)
-    source = models.ForeignKey('Source', models.CASCADE, blank=True, null=True)
+    source = models.ForeignKey('Source', models.CASCADE, blank=True, null=True, verbose_name='Collection')
     nielsen_upc = models.CharField(max_length=124, blank=True, null=True)
     tags = models.CharField(max_length=2048, blank=True, null=True)
     external_id = models.CharField(max_length=250, blank=True, null=True)
-    verified_nft_ingredients = models.CharField(
-        max_length=20,
-        choices=VerifiedNftIngredients.choices,
-        default=VerifiedNftIngredients.UNKNOWN,
-        verbose_name='Verified NFT'
-    )
     storage_condition = models.CharField(
         max_length=20,
         choices=StorageConditions.choices,
@@ -402,12 +370,8 @@ class StoreProduct(BaseModel):
         verbose_name='Number of Units'
     )
     needs_manual_verification = models.BooleanField(default=False)
-    manual_verification_reason = models.CharField(max_length=500, blank=True, null=True)
-    allergens_warnings = models.ManyToManyField(
-        'AllergensWarning',
-        through='StoreProductAllergensWarning',
-        through_fields=('store_product', 'allergens_warning')
-    )
+    # One QC issue per line, as "code: message".
+    manual_verification_reason = models.TextField(blank=True, null=True)
     bullets = models.ManyToManyField(
         'Bullet',
         through='StoreProductBullet',
