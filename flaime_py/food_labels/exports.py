@@ -116,7 +116,7 @@ _FULL_BASE_HEADERS = [
     "serving_size_metric_unit",
 ]
 
-_FULL_TRAILER_HEADERS = ["ingredients_en", "nft_verified", "product_verified"]
+_FULL_TRAILER_HEADERS = ["ingredients_en", "product_verified"]
 
 
 def _display_name(nutrient):
@@ -280,7 +280,6 @@ def _full_row(
 
     row += [
         sp.ingredient_en or "",
-        "Yes" if sp.verified_nft_ingredients != "unknown" else "No",
         "Yes" if sp.verified else "No",
     ]
     return row

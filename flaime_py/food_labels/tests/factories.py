@@ -4,16 +4,15 @@ from factory import Faker, Sequence, SubFactory
 from factory.django import DjangoModelFactory
 
 from flaime_py.food_labels.models import (
-    AllergensWarning,
     Batch,
     Category,
     CategoryScheme,
     Location,
     Nutrient,
     Source,
+    SourceGroup,
     Store,
     StoreProduct,
-    StoreProductAllergensWarning,
     StoreProductImage,
     StoreProductManualCategory,
     StoreProductNutritionFact,
@@ -41,6 +40,14 @@ class CategoryFactory(DjangoModelFactory):
 
     class Meta:
         model = Category
+
+
+class SourceGroupFactory(DjangoModelFactory):
+    name = Sequence(lambda n: f"Source group {n}")
+
+    class Meta:
+        model = SourceGroup
+        django_get_or_create = ["name"]
 
 
 class SourceFactory(DjangoModelFactory):
@@ -152,24 +159,6 @@ class StoreProductNutritionFactFactory(DjangoModelFactory):
 
     class Meta:
         model = StoreProductNutritionFact
-
-
-class AllergensWarningFactory(DjangoModelFactory):
-    contains_en = "milk"
-    contains_fr = "lait"
-    may_contain_en = "peanut"
-    may_contain_fr = "arachide"
-
-    class Meta:
-        model = AllergensWarning
-
-
-class StoreProductAllergensWarningFactory(DjangoModelFactory):
-    store_product = SubFactory(StoreProductFactory)
-    allergens_warning = SubFactory(AllergensWarningFactory)
-
-    class Meta:
-        model = StoreProductAllergensWarning
 
 
 class SuppFoodLabelFlagsFactory(DjangoModelFactory):

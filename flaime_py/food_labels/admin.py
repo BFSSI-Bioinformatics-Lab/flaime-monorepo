@@ -3,8 +3,7 @@ from django import forms
 from .models import (
     StoreProduct, StoreProductNutritionFact, StoreProductUPC,
     StoreProductManualCategory,
-    Category, Nutrient, Unit, UPC, Source, Store, Location,
-    StoreProductAllergensWarning, AllergensWarning
+    Category, Nutrient, Unit, UPC, Source, SourceGroup, Store, Location,
 )
 
 
@@ -26,6 +25,16 @@ class UPCAdmin(ProtectedModelAdmin):
 @admin.register(Source)
 class SourceAdmin(ProtectedModelAdmin):
     search_fields = ['name']
+    list_display = ['id', 'name', 'group']
+    list_filter = ['group']
+    
+    def get_model_perms(self, request):
+        return {}
+
+@admin.register(SourceGroup)
+class SourceGroupAdmin(ProtectedModelAdmin):
+    search_fields = ['name']
+    list_display = ['id', 'name']
     
     def get_model_perms(self, request):
         return {}
@@ -41,25 +50,6 @@ class StoreAdmin(ProtectedModelAdmin):
 class LocationAdmin(ProtectedModelAdmin):
     search_fields = ['name', 'code']
     list_display = ['id', 'name', 'code']
-    
-    def get_model_perms(self, request):
-        return {}
-
-
-@admin.register(AllergensWarning)
-class AllergensWarningAdmin(ProtectedModelAdmin):
-    search_fields = ['contains_en', 'contains_fr', 'may_contain_en', 'may_contain_fr']
-    list_display = ['id', 'allergen_summary', 'contains_en', 'may_contain_en']
-    fields = ['contains_en', 'contains_fr', 'may_contain_en', 'may_contain_fr']
-    
-    def allergen_summary(self, obj):
-        parts = []
-        if obj.contains_en:
-            parts.append(f"Contains: {obj.contains_en[:50]}")
-        if obj.may_contain_en:
-            parts.append(f"May contain: {obj.may_contain_en[:50]}")
-        return "; ".join(parts) if parts else "No allergen info"
-    allergen_summary.short_description = 'Summary'
     
     def get_model_perms(self, request):
         return {}
@@ -143,12 +133,6 @@ class StoreProductNutritionFactInline(admin.TabularInline):
     fields = ['nutrient', 'amount', 'amount_unit', 'daily_value', 'supplemented']
     ordering = ['nutrient__sort_order', 'nutrient__name']
 
-class StoreProductAllergensWarningInline(admin.TabularInline):
-    model = StoreProductAllergensWarning
-    extra = 1
-    autocomplete_fields = ['allergens_warning']
-
-
 # these ones will be directly editable
 
 @admin.register(StoreProduct)
@@ -156,7 +140,7 @@ class StoreProductAdmin(ProtectedModelAdmin):
     list_display = ['id', 'site_name', 'store', 'location', 'brand', 'serving_size', 'serving_size_unit', 'source',
                     'verified', 'supplemented_food']
     list_filter = ['store', 'location', 'source', 'verified', 'nutrition_available_flag', 'supplemented_food',
-                   'variety_pack_flag', 'needs_manual_verification', 'verified_nft_ingredients',
+                   'variety_pack_flag', 'needs_manual_verification',
                    'storage_condition', 'primary_package_material']
     search_fields = ['site_name', 'store_product_code']
     raw_id_fields = ['brand']
@@ -175,16 +159,16 @@ class StoreProductAdmin(ProtectedModelAdmin):
         'individually_packaged_flag',
         'supplemented_food',
         'verified',
-        'verified_nft_ingredients',
         'needs_manual_verification',
         'manual_verification_reason',
         'ingredient_en',
         'ingredient_fr',
+        ('contains_en', 'contains_fr'),
+        ('may_contain_en', 'may_contain_fr'),
     ]
     inlines = [
         StoreProductUPCInline,
         StoreProductManualCategoryInline,
-        StoreProductAllergensWarningInline,
         StoreProductNutritionFactInline,
     ]
 

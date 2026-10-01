@@ -21,8 +21,7 @@ class Command(BaseCommand):
         queryset = StoreProduct.objects.all()
 
         if options['source']:
-            source_name = "Nielsen 2017" if options['source'] == 'Nielsen' else options['source']
-            queryset = queryset.filter(source__name=source_name)
+            queryset = queryset.filter(source__group__name=options['source'])
 
         if options['batch']:
             queryset = queryset.filter(scrape_batch_id=options['batch'])
