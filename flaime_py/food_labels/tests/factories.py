@@ -4,9 +4,9 @@ from factory import Faker, Sequence, SubFactory
 from factory.django import DjangoModelFactory
 
 from flaime_py.food_labels.models import (
-    Batch,
     Category,
     CategoryScheme,
+    IngestRun,
     Location,
     Nutrient,
     Source,
@@ -85,15 +85,13 @@ class LocationFactory(DjangoModelFactory):
         django_get_or_create = ["code"]
 
 
-class BatchFactory(DjangoModelFactory):
-    scrape_datetime = Faker("date_time_this_year", tzinfo=datetime.timezone.utc)
-    total_number_of_products = 0
-    total_number_of_new_products = 0
-    total_number_of_missing_products = 0
-    store = SubFactory(StoreFactory)
+class IngestRunFactory(DjangoModelFactory):
+    started = Faker("date_time_this_year", tzinfo=datetime.timezone.utc)
+    status = IngestRun.Status.SUCCEEDED
+    command = "test"
 
     class Meta:
-        model = Batch
+        model = IngestRun
 
 
 class StoreProductFactory(DjangoModelFactory):

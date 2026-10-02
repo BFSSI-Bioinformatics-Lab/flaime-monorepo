@@ -378,7 +378,7 @@ class StoreProductViewSet(viewsets.ReadOnlyModelViewSet):
         queryset, data = self._search_queryset(request)
         queryset = apply_ordering(queryset, data.get("sort"))
         queryset = queryset.select_related(
-            "source__group", "store", "scrape_batch", "location"
+            "source__group", "store", "ingest_run", "location"
         ).prefetch_related(
             Prefetch(
                 "manual_categories",

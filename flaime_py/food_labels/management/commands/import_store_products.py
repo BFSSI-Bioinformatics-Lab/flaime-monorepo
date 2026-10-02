@@ -16,7 +16,7 @@ import os
 import logging
 import subprocess
 
-# TODO: This needs to create a scrape_batch for the added products
+# TODO: This needs to create an ingest_run for the added products
 
 
 logger = logging.getLogger(__name__)

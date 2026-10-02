@@ -24,7 +24,7 @@ SEARCH_ORDERING_FIELDS = {
     "source": "source__name",
     "source_group": "source__group__name",
     "store": "store__name",
-    "date": "scrape_batch__scrape_datetime",
+    "date": "ingest_run__started",
     "region": "location__name",
     "storage_condition": "storage_condition",
     "primary_package_material": "primary_package_material",
@@ -163,9 +163,9 @@ def build_search_queryset(text=None, filters=None):
         # Manual categories are the authoritative ones.
         qs = qs.filter(manual_categories__category_id__in=filters["category"])
     if filters.get("date_from"):
-        qs = qs.filter(scrape_batch__scrape_datetime__date__gte=filters["date_from"])
+        qs = qs.filter(ingest_run__started__date__gte=filters["date_from"])
     if filters.get("date_to"):
-        qs = qs.filter(scrape_batch__scrape_datetime__date__lte=filters["date_to"])
+        qs = qs.filter(ingest_run__started__date__lte=filters["date_to"])
     if filters.get("storage_condition"):
         qs = qs.filter(storage_condition=filters["storage_condition"])
     if filters.get("primary_package_material"):

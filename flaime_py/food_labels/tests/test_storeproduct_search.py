@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 
 from flaime_py.users.tests.factories import UserFactory
 
-from .factories import BatchFactory
+from .factories import IngestRunFactory
 from .factories import CategoryFactory
 from .factories import CategorySchemeFactory
 from .factories import LocationFactory
@@ -232,18 +232,18 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
         )
         assert [r["id"] for r in response.data["results"]] == [high.id]
 
-    def test_date_range_on_scrape_batch(self):
+    def test_date_range_on_ingest_run(self):
         old = StoreProductFactory(
-            scrape_batch=BatchFactory(
-                scrape_datetime=datetime.datetime(2022, 1, 1, tzinfo=datetime.timezone.utc),
+            ingest_run=IngestRunFactory(
+                started=datetime.datetime(2022, 1, 1, tzinfo=datetime.timezone.utc),
             ),
         )
         new = StoreProductFactory(
-            scrape_batch=BatchFactory(
-                scrape_datetime=datetime.datetime(2024, 6, 1, tzinfo=datetime.timezone.utc),
+            ingest_run=IngestRunFactory(
+                started=datetime.datetime(2024, 6, 1, tzinfo=datetime.timezone.utc),
             ),
         )
-        no_batch = StoreProductFactory(scrape_batch=None)
+        no_run = StoreProductFactory(ingest_run=None)
 
         response = self.client.post(
             self.url,
@@ -252,7 +252,7 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
         )
         ids = {r["id"] for r in response.data["results"]}
         assert ids == {new.id}
-        assert old.id not in ids and no_batch.id not in ids
+        assert old.id not in ids and no_run.id not in ids
 
     def test_ordering_price_is_numeric(self):
         StoreProductFactory(site_name="p2", price=2.0)
@@ -287,10 +287,10 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
         assert response.data["count"] == 5
         assert response.data["next"] is not None
 
-    def test_scrape_batch_location_and_categories_in_result_shape(self):
-        batch = BatchFactory()
+    def test_ingest_run_location_and_categories_in_result_shape(self):
+        run = IngestRunFactory()
         location = LocationFactory(name="Ontario", code="ON")
-        product = StoreProductFactory(scrape_batch=batch, location=location, site_name="Shaped")
+        product = StoreProductFactory(ingest_run=run, location=location, site_name="Shaped")
         scheme = CategorySchemeFactory()
         category = CategoryFactory(scheme=scheme, level=2)
         StoreProductManualCategoryFactory(
@@ -305,7 +305,8 @@ class StoreProductSearchTests(AuthMixin, APITestCase):
             format="json",
         )
         row = response.data["results"][0]
-        assert row["scrape_batch"]["datetime"] is not None
+        assert row["ingest_run"] == {"id": run.id, "started": row["ingest_run"]["started"]}
+        assert row["ingest_run"]["started"] is not None
         assert row["location"] == {"code": "ON", "name": "Ontario"}
         assert row["categories"][0]["id"] == category.id
         assert row["categories"][0]["level"] == 2
