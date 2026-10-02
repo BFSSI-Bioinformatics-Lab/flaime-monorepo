@@ -9,7 +9,7 @@ COPY frontend/ ./
 RUN npm run build:prod
 
 # --- Stage 2: Django app ------------------------------------------------------
-FROM python:3.14-trixie
+FROM python:3.12-trixie
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK 1
 ENV PYTHONDONTWRITEBYTECODE 1
