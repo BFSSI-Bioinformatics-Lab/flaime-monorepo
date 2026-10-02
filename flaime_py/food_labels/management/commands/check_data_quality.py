@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--source', type=str, choices=['Nielsen', 'FLIP'], help='Check products from a specific source')
-        parser.add_argument('--batch', type=int, help='Check products from a specific batch ID')
+        parser.add_argument('--run', type=int, help='Check products from a specific ingest run ID')
         parser.add_argument('--date', type=str, help='Check products from a specific date (YYYY-MM-DD)')
         parser.add_argument('--category', type=int, help='Check products from a specific category ID')
         parser.add_argument('--limit', type=int, default=None, help='Limit the number of products to check')
@@ -23,8 +23,8 @@ class Command(BaseCommand):
         if options['source']:
             queryset = queryset.filter(source__group__name=options['source'])
 
-        if options['batch']:
-            queryset = queryset.filter(scrape_batch_id=options['batch'])
+        if options['run']:
+            queryset = queryset.filter(ingest_run_id=options['run'])
         if options['date']:
             date = datetime.strptime(options['date'], '%Y-%m-%d').date()
             queryset = queryset.filter(created_datetime__date=date)

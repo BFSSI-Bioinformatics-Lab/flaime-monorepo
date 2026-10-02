@@ -1977,17 +1977,15 @@ components:
           allOf:
           - $ref: '#/components/schemas/SimpleStore'
           readOnly: true
-        scrape_batch:
+        ingest_run:
           type: object
           nullable: true
           properties:
-            datetime:
+            id:
+              type: integer
+            started:
               type: string
               format: date-time
-              nullable: true
-            region:
-              type: string
-              nullable: true
           readOnly: true
         categories:
           type: array
@@ -2026,8 +2024,8 @@ components:
       - allergens_warnings
       - categories
       - id
+      - ingest_run
       - primary_package_material
-      - scrape_batch
       - secondary_package_material
       - source
       - storage_condition

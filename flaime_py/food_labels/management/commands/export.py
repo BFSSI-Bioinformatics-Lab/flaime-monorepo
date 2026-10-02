@@ -20,20 +20,20 @@ Export Modes:
   full            Complete nutrient data export with all fields and optional supplementation info
   manual-review   Products flagged for manual verification with review reasons
   random-sample   Random sample of products (excludes manually flagged items)
-  snapshot        All products in batch/source with basic identifying information
+  snapshot        All products in an ingest run/source with basic identifying information
 
 Examples:
   # Full export with all nutrients
   python manage.py export --mode full --output data.csv --supplemented
   
   # Products needing manual review
-  python manage.py export --mode manual-review --batch 10,11,12
+  python manage.py export --mode manual-review --run 10,11,12
   
   # 20% random sample for quality checks
   python manage.py export --mode random-sample --source 5 --sample-rate 0.20
   
-  # Complete snapshot of a batch
-  python manage.py export --mode snapshot --batch 15
+  # Complete snapshot of an ingest run (old scrape batches kept their ids as runs)
+  python manage.py export --mode snapshot --run 15
 '''
 
     def add_arguments(self, parser):
@@ -43,7 +43,7 @@ Examples:
         parser.add_argument('--mode', type=str, choices=['full', 'manual-review', 'random-sample', 'snapshot'],
                           default='full', help='Export mode (default: full)')
         
-        parser.add_argument('--batch', type=str, help='Comma-separated batch IDs to filter by')
+        parser.add_argument('--run', type=str, help='Comma-separated ingest run IDs to filter by')
         parser.add_argument('--source', type=str, help='Comma-separated source IDs to filter by')
         
         parser.add_argument('--batch-size', type=int, default=1000, 
@@ -71,20 +71,20 @@ Examples:
             self._handle_snapshot(options)
 
     def _get_filter_params(self, options):
-        batch_ids = options.get('batch')
+        run_ids = options.get('run')
         source_ids = options.get('source')
         
-        if batch_ids and source_ids:
-            raise CommandError('Cannot provide both --batch and --source')
+        if run_ids and source_ids:
+            raise CommandError('Cannot provide both --run and --source')
         
         filters = {}
         filter_type = None
         filter_values = None
         
-        if batch_ids:
-            id_list = [int(x.strip()) for x in batch_ids.split(',')]
-            filters['scrape_batch_id__in'] = id_list
-            filter_type = 'batch'
+        if run_ids:
+            id_list = [int(x.strip()) for x in run_ids.split(',')]
+            filters['ingest_run_id__in'] = id_list
+            filter_type = 'run'
             filter_values = id_list
         elif source_ids:
             id_list = [int(x.strip()) for x in source_ids.split(',')]
@@ -151,13 +151,13 @@ Examples:
         filters, filter_type, filter_values = self._get_filter_params(options)
         
         if not filters:
-            raise CommandError('Must provide either --batch or --source for manual-review mode')
+            raise CommandError('Must provide either --run or --source for manual-review mode')
         
         filters['needs_manual_verification'] = True
         filters['verified'] = False
         
         products = StoreProduct.objects.filter(**filters).select_related('source').values(
-            'id', 'site_name', 'manual_verification_reason', 'scrape_batch_id', 'source__name'
+            'id', 'site_name', 'manual_verification_reason', 'ingest_run_id', 'source__name'
         )
         
         if not products.exists():
@@ -172,7 +172,7 @@ Examples:
             writer = csv.writer(csvfile)
             writer.writerow([
                 'FLAIME_id', 'product_name', 'automatic_review_reason',
-                'batch_id', 'source_name', 'url'
+                'run_id', 'source_name', 'url'
             ])
             
             for product in products:
@@ -180,7 +180,7 @@ Examples:
                     product['id'],
                     product['site_name'],
                     product['manual_verification_reason'] or '',
-                    product['scrape_batch_id'],
+                    product['ingest_run_id'],
                     product['source__name'] or '',
                     f"https://flaime.scdc-bio.ca/tools/product-browser/{product['id']}"
                 ])
@@ -198,7 +198,7 @@ Examples:
         filters, filter_type, filter_values = self._get_filter_params(options)
         
         if not filters:
-            raise CommandError('Must provide either --batch or --source for random-sample mode')
+            raise CommandError('Must provide either --run or --source for random-sample mode')
         
         filters['needs_manual_verification'] = False
         filters['verified'] = False
@@ -214,18 +214,18 @@ Examples:
         sample_size = max(1, int(total_count * sample_rate))
         
         products = StoreProduct.objects.filter(**filters).select_related('source').order_by('?')[:sample_size].values(
-            'id', 'site_name', 'scrape_batch_id', 'source__name'
+            'id', 'site_name', 'ingest_run_id', 'source__name'
         )
         
         with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['FLAIME_id', 'product_name', 'batch_id', 'source_name', 'url'])
+            writer.writerow(['FLAIME_id', 'product_name', 'run_id', 'source_name', 'url'])
             
             for product in products:
                 writer.writerow([
                     product['id'],
                     product['site_name'],
-                    product['scrape_batch_id'],
+                    product['ingest_run_id'],
                     product['source__name'] or '',
                     f"https://flaime.scdc-bio.ca/tools/product-browser/{product['id']}"
                 ])
@@ -242,10 +242,10 @@ Examples:
         filters, filter_type, filter_values = self._get_filter_params(options)
         
         if not filters:
-            raise CommandError('Must provide either --batch or --source for snapshot mode')
+            raise CommandError('Must provide either --run or --source for snapshot mode')
         
         products = StoreProduct.objects.filter(**filters).select_related('source').values(
-            'id', 'site_name', 'scrape_batch_id', 'source__name'
+            'id', 'site_name', 'ingest_run_id', 'source__name'
         )
         
         total_count = products.count()
@@ -258,13 +258,13 @@ Examples:
         
         with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['FLAIME_id', 'product_name', 'batch_id', 'source_name', 'url'])
+            writer.writerow(['FLAIME_id', 'product_name', 'run_id', 'source_name', 'url'])
             
             for product in products:
                 writer.writerow([
                     product['id'],
                     product['site_name'],
-                    product['scrape_batch_id'],
+                    product['ingest_run_id'],
                     product['source__name'] or '',
                     f"https://flaime.scdc-bio.ca/tools/product-browser/{product['id']}"
                 ])

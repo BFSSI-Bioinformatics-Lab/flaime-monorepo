@@ -88,7 +88,7 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
     source = SimpleSourceSerializer(read_only=True)
     source_group = serializers.CharField(source="source.group.name", default=None, read_only=True)
     store = SimpleStoreSerializer(read_only=True)
-    scrape_batch = serializers.SerializerMethodField()
+    ingest_run = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
     categories = serializers.SerializerMethodField()
     storage_condition = serializers.CharField(source="get_storage_condition_display")
@@ -112,7 +112,7 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
             "source",
             "source_group",
             "store",
-            "scrape_batch",
+            "ingest_run",
             "location",
             "categories",
             "storage_condition",
@@ -127,14 +127,16 @@ class StoreProductSearchResultSerializer(serializers.ModelSerializer):
             "type": "object",
             "nullable": True,
             "properties": {
-                "datetime": {"type": "string", "format": "date-time", "nullable": True},
+                "id": {"type": "integer"},
+                "started": {"type": "string", "format": "date-time"},
             },
         }
     )
-    def get_scrape_batch(self, obj):
-        if not obj.scrape_batch_id:
+    def get_ingest_run(self, obj):
+        """The load that added the product; its start dates the product."""
+        if not obj.ingest_run_id:
             return None
-        return {"datetime": obj.scrape_batch.scrape_datetime}
+        return {"id": obj.ingest_run_id, "started": obj.ingest_run.started}
 
     @extend_schema_field(
         {

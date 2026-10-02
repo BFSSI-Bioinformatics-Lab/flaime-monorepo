@@ -25,7 +25,7 @@ export const useSearchFilters = (initialFilters) => {
  *     },
  *     filters: {
  *       source, store, region, category: [ids],
- *       date_from, date_to,                       // scrape_batch datetime
+ *       date_from, date_to,                       // ingest_run started
  *       storage_condition, primary_package_material, secondary_package_material,  // slugs
  *       ingredients: { terms: [], mode: 'all' | 'any' },  // ingredient_en OR ingredient_fr
  *       allergens,                                // substring over contains_en OR may_contain_en

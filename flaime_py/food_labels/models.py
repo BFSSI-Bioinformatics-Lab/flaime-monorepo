@@ -191,24 +191,56 @@ class StoreProductPredictedCategory(models.Model):
         verbose_name_plural = 'Predicted Store Product Categories'
 
 
-class Batch(BaseModel):
-    scrape_datetime = models.DateTimeField()
-    total_number_of_products = models.IntegerField()
-    total_number_of_new_products = models.IntegerField()
-    total_number_of_missing_products = models.IntegerField()
-    notes = models.TextField(blank=True, null=True)
-    store = models.ForeignKey('Store', models.CASCADE, blank=True, null=True)
-    region = models.CharField(max_length=512, blank=True, null=True)
-    postal_code = models.CharField(max_length=10, blank=True, null=True)
+class IngestRun(BaseModel):
+    """One load of products into FLAIME: a run of the flaime-ingress pipeline, which
+    loads products from fanddaf, or an earlier load, which was a scrape batch.
+
+    The products a run loaded point to it (StoreProduct.ingest_run); `started` dates
+    them in search. Store and province are recorded per product.
+    """
+    class Status(models.TextChoices):
+        RUNNING = "running", "Running"
+        SUCCEEDED = "succeeded", "Succeeded"
+        FAILED = "failed", "Failed"
+
+    started = models.DateTimeField()
+    finished = models.DateTimeField(blank=True, null=True)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.RUNNING)
+    command = models.CharField(max_length=512)
+    code_version = models.CharField(max_length=64, blank=True, null=True)
+    eligible = models.IntegerField(default=0)
+    loaded = models.IntegerField(default=0)
+    skipped = models.IntegerField(default=0)
+    failed = models.IntegerField(default=0)
+    error = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = True
-        db_table = 'scrape_batches'
-        verbose_name = 'Batch'
-        verbose_name_plural = 'Batches'
+        db_table = 'ingest_runs'
 
     def __str__(self):
-        return f"Scrape id {self.id} date {self.scrape_datetime}"
+        return f"Ingest run {self.id} {self.started:%Y-%m-%d %H:%M} {self.status}"
+
+
+class IngestAttempt(BaseModel):
+    """What happened to one fanddaf product in one ingest run."""
+    class Outcome(models.TextChoices):
+        LOADED = "loaded", "Loaded"
+        SKIPPED = "skipped", "Skipped"
+        FAILED = "failed", "Failed"
+
+    run = models.ForeignKey(IngestRun, models.CASCADE, related_name='attempts')
+    fanddaf_id = models.BigIntegerField(db_index=True)
+    outcome = models.CharField(max_length=16, choices=Outcome.choices)
+    stage = models.CharField(max_length=32)  # where it stopped: fanddaf, extract, images, load, cleanup
+    message = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ingest_attempts'
+
+    def __str__(self):
+        return f"{self.fanddaf_id} {self.outcome} at {self.stage}"
 
 
 # Naming: the app shows a Source as a "Collection" (e.g. "2026 Snack Foods Collection",
@@ -313,7 +345,8 @@ class StoreProduct(BaseModel):
     raw_brand = models.CharField(max_length=256, blank=True, null=True)
     site_name = models.CharField(max_length=512, blank=True, null=True)
     site_description = models.CharField(max_length=10240, blank=True, null=True)
-    scrape_batch = models.ForeignKey('Batch', models.CASCADE, blank=True, null=True)
+    ingest_run = models.ForeignKey('IngestRun', models.SET_NULL, blank=True, null=True,
+                                   related_name='store_products')
     private_label = models.CharField(max_length=4096, blank=True, null=True)
     variety_pack_flag = models.BooleanField(default=False)
     supplemented_food = models.BooleanField(default=False)
@@ -445,8 +478,8 @@ class Store(BaseModel):
 class Location(BaseModel):
     """Where a product was collected (a province, e.g. Ontario / Quebec).
 
-    This used to be recorded per batch (scrape_batches.region); it is now tracked
-    per store product.
+    This used to be recorded per scrape batch (scrape_batches.region); it is now
+    tracked per store product.
     """
     name = models.CharField(max_length=128)
     code = models.CharField(max_length=8)
