@@ -78,7 +78,10 @@ if settings.DEBUG:
         urlpatterns = [path(f"{PREFIX}__debug__/", include(debug_toolbar.urls))] + urlpatterns
 
 
-# React catch-all
+# React catch-all. Also matches the bare prefix ("/app/flaime" without the
+# trailing slash) so it is served directly: the FSDH proxy turns the 301 that
+# APPEND_SLASH would otherwise send into an error page.
+REACT_PATTERN = rf"^{PREFIX.rstrip('/')}(?:/.*)?$" if PREFIX else r"^.*$"
 urlpatterns += [
-    re_path(rf"^{PREFIX}.*$", ReactAppView.as_view(), name="home"),
+    re_path(REACT_PATTERN, ReactAppView.as_view(), name="home"),
 ]
