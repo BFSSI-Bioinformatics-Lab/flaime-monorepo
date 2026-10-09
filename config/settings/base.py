@@ -175,7 +175,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "flaime_py.food_labels.middleware.SuperuserErrorDetailsMiddleware",
 ]
+# Temporary debugging aid: when True, superusers see the traceback of any
+# unhandled exception (see SuperuserErrorDetailsMiddleware). Leave it off.
+SHOW_ERRORS_TO_SUPERUSERS = env.bool("DJANGO_SHOW_ERRORS_TO_SUPERUSERS", default=False)
 
 # STATIC
 # ------------------------------------------------------------------------------
