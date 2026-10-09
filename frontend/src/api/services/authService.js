@@ -26,6 +26,19 @@ axiosInstance.interceptors.request.use(
   error => Promise.reject(error)
 );
 
+// With DJANGO_SHOW_ERRORS_TO_SUPERUSERS on, a superuser's 500 responses carry
+// the server traceback; print it so it reads as text in the browser console.
+axiosInstance.interceptors.response.use(
+  response => response,
+  error => {
+    const traceback = error.response?.data?.traceback;
+    if (traceback) {
+      console.error(`Server error for ${error.config?.url}:\n${traceback}`);
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Auth methods
 const login = async (username, password) => {
   try {
