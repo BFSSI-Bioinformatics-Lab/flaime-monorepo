@@ -6,7 +6,7 @@ const SearchFilter = ({categories, onInputChange, free = true}) => {
         <>
             <Grid container spacing={3}>
                 {categories.map((category, i) => (
-                    <Grid key={`${category.title}${i}`} item xs={category.multiple ? 7 : 6} md={category.multiple ? 4 : 3}>
+                    <Grid key={`${category.title}${i}`} size={{ xs: category.multiple ? 7 : 6, md: category.multiple ? 4 : 3 }}>
                         <div>
                             <Typography variant="h5">{category.title}</Typography>
                             <Autocomplete 

@@ -127,7 +127,7 @@ const CollectionStats = () => {
                     </Typography>
 
                     <Grid container spacing={3} style={{ padding: '0 10px 20px' }}>
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                             <Card variant="outlined">
                                 <CardContent>
                                     <Typography variant="subtitle1" color="text.secondary">
@@ -137,7 +137,7 @@ const CollectionStats = () => {
                                 </CardContent>
                             </Card>
                         </Grid>
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                             <Card variant="outlined">
                                 <CardContent>
                                     <Typography variant="subtitle1" color="text.secondary">
@@ -150,7 +150,7 @@ const CollectionStats = () => {
                                 </CardContent>
                             </Card>
                         </Grid>
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                             <Card variant="outlined">
                                 <CardContent>
                                     <Typography variant="subtitle1" color="text.secondary">
@@ -211,7 +211,7 @@ const CollectionStats = () => {
                     </Typography>
 
                     <Grid container spacing={3} style={{ padding: '0 10px 20px' }}>
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                             <Card variant="outlined">
                                 <CardContent>
                                     <Typography variant="subtitle1" color="text.secondary">
@@ -224,7 +224,7 @@ const CollectionStats = () => {
                                 </CardContent>
                             </Card>
                         </Grid>
-                        <Grid item xs={12} sm={4}>
+                        <Grid size={{ xs: 12, sm: 4 }}>
                             <Card variant="outlined">
                                 <CardContent>
                                     <Typography variant="subtitle1" color="text.secondary">

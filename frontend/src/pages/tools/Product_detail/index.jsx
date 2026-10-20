@@ -143,7 +143,7 @@ const ProductDetail = () => {
                 )}
                 <ProductInfoBox>
                     <Grid container spacing={6} alignItems="flex-start">
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             {productDescItems.map(item => (
                                 <DetailItem key={item.name}><b>{item.name}</b>: {item.value}</DetailItem>
                             ))}
@@ -249,7 +249,7 @@ const ProductDetail = () => {
                                 </div>
                             )}
                         </Grid>
-                        <Grid item xs={12} md={6} sx={{ maxWidth: 500 }}>
+                        <Grid size={{ xs: 12, md: 6 }} sx={{ maxWidth: 500 }}>
                             <NutritionFactsTable product={product} />
                             <ProductImages product={product} />
                         </Grid>
