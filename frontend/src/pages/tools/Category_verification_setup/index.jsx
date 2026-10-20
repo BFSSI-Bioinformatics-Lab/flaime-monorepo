@@ -184,7 +184,7 @@ const CategoryVerificationSetup = () => {
           const comboKey = `${combo.sourceId}-${combo.schemeId}`;
           
           return (
-            <Grid item xs={12} md={6} lg={4} key={`${combo.sourceId}-${combo.schemeId}`}>
+            <Grid size={{ xs: 12, md: 6, lg: 4 }} key={`${combo.sourceId}-${combo.schemeId}`}>
               <Card variant="outlined" className="h-full">
                 <CardContent>
                   <Box className="flex justify-between items-start mb-3">
@@ -214,7 +214,7 @@ const CategoryVerificationSetup = () => {
                     />
                     
                     <Grid container spacing={2} className="text-sm">
-                      <Grid item xs={4}>
+                      <Grid size={4}>
                         <Box className="text-center">
                           <Typography variant="h6" color="primary">
                             {stats.total}
@@ -224,7 +224,7 @@ const CategoryVerificationSetup = () => {
                           </Typography>
                         </Box>
                       </Grid>
-                      <Grid item xs={4}>
+                      <Grid size={4}>
                         <Box className="text-center">
                           <Typography variant="h6" color="success.main">
                             {stats.verified}
@@ -234,7 +234,7 @@ const CategoryVerificationSetup = () => {
                           </Typography>
                         </Box>
                       </Grid>
-                      <Grid item xs={4}>
+                      <Grid size={4}>
                         <Box className="text-center">
                           <Typography variant="h6" color="warning.main">
                             {stats.pending}

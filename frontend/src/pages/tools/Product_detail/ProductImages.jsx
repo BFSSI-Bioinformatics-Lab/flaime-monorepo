@@ -45,7 +45,7 @@ const ProductImages = ({ product }) => {
         <PhotoProvider>
             <Grid container spacing={2} style={{ marginTop: '20px' }}>
                 {images.map((image, index) => (
-                    <Grid key={index} item xs={12} sm={4} md={4} lg={4}>
+                    <Grid key={index} size={{ xs: 12, sm: 4 }}>
                         <Paper elevation={3} style={{ padding: '10px', cursor: 'pointer' }}>
                             <PhotoView src={image.full}>
                                 <img

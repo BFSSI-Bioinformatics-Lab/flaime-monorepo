@@ -361,10 +361,10 @@ const AdvancedSearch = () => {
                </div>
 
                 <Grid container spacing={1} direction="row" justifyContent="space-between" >
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <CategorySelector key={resetKey} onChange={handleCategoryChange('Categories')} />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Typography variant="h5" style={{ padding: '10px 20px 20px 20px' }}>Select a date range</Typography>
                         <div style={{ display: 'flex', justifyContent: 'space-around', padding: '15px 20px' }}>
                             <SingleDatePicker
