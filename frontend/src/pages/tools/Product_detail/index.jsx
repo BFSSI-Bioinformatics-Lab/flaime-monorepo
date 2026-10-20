@@ -110,12 +110,7 @@ const ProductDetail = () => {
         { name: "Packaging (Secondary)", value: product.secondary_package_material || "Not available" },
     ].filter(item => item.value); // null or undefined values are filtered out
 
-    const isFlagged = product.needs_manual_verification === true || product.needs_manual_verification === 'true';
     const isVerified = product.verified === true || product.verified === 'true';
-
-    const showWarningBanner = isFlagged && !isVerified;
-    const showSuccessBanner = isVerified;
-    const isTDS = product.source === "2025 Total Diet Study" && !isVerified;
 
     return (
         <div>
@@ -126,19 +121,9 @@ const ProductDetail = () => {
                 </Grid>
             </Band>
             <PageContainer>
-                {isTDS && (
+                {!isVerified && (
                     <Alert severity="warning" sx={{ mb: 3 }}>
-                        This product is part of the 2025 Total Diet study. The TDS products have not been completely entered into FLAIME or undergone quality control; may contain errors
-                    </Alert>
-                )}
-                {showWarningBanner && (
-                    <Alert severity="warning" sx={{ mb: 3 }}>
-                        Automated QC has detected that there may be errors in this product record, and this product has not yet been manually verified. Expect some data fields to contain errors, and compare with the photos
-                    </Alert>
-                )}
-                {showSuccessBanner && (
-                    <Alert severity="success" sx={{ mb: 3 }}>
-                        This product has been manually verified and all errors have been corrected.
+                        This product has not yet been manually verified. Some data fields may contain errors, so compare them with the photos
                     </Alert>
                 )}
                 <ProductInfoBox>
