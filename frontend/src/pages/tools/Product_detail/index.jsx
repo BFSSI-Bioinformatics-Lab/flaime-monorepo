@@ -121,7 +121,11 @@ const ProductDetail = () => {
                 </Grid>
             </Band>
             <PageContainer>
-                {!isVerified && (
+                {isVerified ? (
+                    <Alert severity="success" sx={{ mb: 3 }}>
+                        This product has been manually verified and all errors have been corrected.
+                    </Alert>
+                ) : (
                     <Alert severity="warning" sx={{ mb: 3 }}>
                         This product has not yet been manually verified. Some data fields may contain errors, so compare them with the photos
                     </Alert>
