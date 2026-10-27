@@ -171,6 +171,7 @@ export const buildProductBrowserBody = (searchTerms) => {
   if (searchTerms.siteName) text.site_name = searchTerms.siteName.trim();
 
   const filters = {};
+  addIfSet(filters, 'source_group', searchTerms.sourceGroup);
   addIfSet(filters, 'source', searchTerms.sourceName);
 
   return { text, filters };
