@@ -10,6 +10,8 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+PRODUCT_URL = 'https://prd.fsdh-dhsf.science.cloud-nuage.canada.ca/app/flaime/tools/product-browser/{}'
+
 __all__ = ["Command", "NUTRIENT_ORDER"]
 
 
@@ -182,7 +184,7 @@ Examples:
                     product['manual_verification_reason'] or '',
                     product['ingest_run_id'],
                     product['source__name'] or '',
-                    f"https://flaime.scdc-bio.ca/tools/product-browser/{product['id']}"
+                    PRODUCT_URL.format(product['id'])
                 ])
         
         count = products.count()
@@ -227,7 +229,7 @@ Examples:
                     product['site_name'],
                     product['ingest_run_id'],
                     product['source__name'] or '',
-                    f"https://flaime.scdc-bio.ca/tools/product-browser/{product['id']}"
+                    PRODUCT_URL.format(product['id'])
                 ])
         
         self.stdout.write(
@@ -266,7 +268,7 @@ Examples:
                     product['site_name'],
                     product['ingest_run_id'],
                     product['source__name'] or '',
-                    f"https://flaime.scdc-bio.ca/tools/product-browser/{product['id']}"
+                    PRODUCT_URL.format(product['id'])
                 ])
         
         self.stdout.write(self.style.SUCCESS(f'Exported {total_count} products to {output_file}'))
