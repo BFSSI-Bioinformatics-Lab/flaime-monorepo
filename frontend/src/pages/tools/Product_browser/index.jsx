@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SourceSelector from '../../../components/inputs/SourceSelector';
+import SourceGroupSelector from '../../../components/inputs/SourceGroupSelector';
 import { ResetButton } from '../../../components/buttons/ResetButton';
 import { DownloadResultButton } from '../../../components/buttons/DownloadResultButton';
 import { buildProductBrowserBody } from '../util';
@@ -28,6 +29,7 @@ const ProductBrowser = () => {
   const [searchTerms, setSearchTerms] = useState({
     id: '',
     external_id: '',
+    sourceGroup: '',
     sourceName: '',
     siteName: '',
   });
@@ -73,6 +75,12 @@ const ProductBrowser = () => {
     setIsSearching(true);
   }, []);
 
+  const handleSourceGroupSearch = useCallback((selectedGroup) => {
+    setSearchTerms(prev => ({ ...prev, sourceGroup: selectedGroup === '-1' ? '' : selectedGroup }));
+    setPage(1);
+    setIsSearching(true);
+  }, []);
+
   const handleSourceNameSearch = useCallback((selectedSource) => {
     setSearchTerms(prev => ({ ...prev, sourceName: selectedSource === '-1' ? '' : selectedSource }));
     setPage(1);
@@ -88,7 +96,7 @@ const ProductBrowser = () => {
   }, []);
 
   const handleReset = useCallback(() => {
-    setSearchTerms({ id: '', external_id: '', sourceName: '', siteName: '' });
+    setSearchTerms({ id: '', external_id: '', sourceGroup: '', sourceName: '', siteName: '' });
     setPage(1);
     setIsSearching(false);
     setSortState({ field: null, order: 'asc' });
@@ -100,7 +108,7 @@ const ProductBrowser = () => {
     <div style={{ width: '80vw', margin: '0 auto' }}>
       <Typography variant="h4" style={{ padding: '10px' }}>Product Browser</Typography>
       <Typography variant="body1" style={{ padding: '10px', width: '80vw', margin: '0 auto' }}>
-        Search for products by ID, external ID (e.g. FLIP product ID), collection or product name. Use the form below to search for products. Note that you can also search by more than one search term at once.
+        Search for products by ID, external ID (e.g. FLIP product ID), source, collection or product name. Use the form below to search for products. Note that you can also search by more than one search term at once.
         <ul>
           <li>Product name search supports partial matching (e.g. "cone" will also match "cones", and "School" will match "SchoolSafe").</li>
         </ul>
@@ -110,6 +118,7 @@ const ProductBrowser = () => {
       <SearchForm
         searchTerms={searchTerms}
         handleSearchChange={handleSearchChange}
+        handleSourceGroupSearch={handleSourceGroupSearch}
         handleSourceNameSearch={handleSourceNameSearch}
         handleReset={handleReset}
         queryBody={currentQueryBody}
@@ -134,11 +143,17 @@ const ProductBrowser = () => {
   );
 };
 
-const SearchForm = React.memo(({ searchTerms, handleSearchChange, handleSourceNameSearch, handleReset, queryBody, totalProducts}) => (
+const SearchForm = React.memo(({ searchTerms, handleSearchChange, handleSourceGroupSearch, handleSourceNameSearch, handleReset, queryBody, totalProducts}) => (
   <div>
-    <div style={{ display: 'flex', justifyContent: 'space-evenly', margin: '20px 20px', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', rowGap: '10px', justifyContent: 'space-evenly', margin: '20px 20px', alignItems: 'center' }}>
       <SearchField label="Search ID" value={searchTerms.id} onChange={handleSearchChange('id')} />
       <SearchField label="External ID" value={searchTerms.external_id} onChange={handleSearchChange('external_id')} />
+      <SourceGroupSelector
+        value={searchTerms.sourceGroup}
+        onSelect={handleSourceGroupSearch}
+        showTitle={false}
+        label="Search by Source"
+      />
       <SourceSelector
         value={searchTerms.sourceName}
         onSelect={handleSourceNameSearch}
